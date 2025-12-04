@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+@layer utilities {
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+}
+
+@font-face {
+  font-family: 'Audiowide';
+  src: url('./assets/fonts/Audiowide/Audiowide-Regular.ttf');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf');
+  font-weight: 848;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'JetBrains';
+  src: url('./assets/fonts/JetBrainsMono-2.304/fonts/variable/JetBrainsMono[wght].ttf');
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+@theme {
+
+  --font-custom : "JetBrains";
+  --font-custom : "Montserrat";
+  --font-custom : "Audiowide";
+
+  --color-secondary-50: #e6e9f0;
+  --color-secondary-100: #6696FF;
+  --color-secondary-200: #5B86E5;
+  --color-secondary-300: #4F76CB;
+  --color-secondary-400: #4466B1;
+  --color-secondary-500: #385697;
+  --color-secondary-600: #2D467D;
+  --color-secondary-700: #213663;
+  --color-secondary-800: #162649;
+  --color-secondary-900: #0A162F;
+
+  --color-primary-50: #f5cbb6ff;
+  --color-primary-100: #FFA375;
+  --color-primary-200: #FF8F58;
+  --color-primary-300: #FF7C3A;
+  --color-primary-400: #FF681D;
+  --color-primary-500: #FF5500;
+  --color-primary-600: #E64D00;
+  --color-primary-700: #CC4400;
+  --color-primary-800: #B33C00;
+  --color-primary-900: #852f04;
+
+  --color-hive-10: #FF5500;
+  --color-hive-20: #FF6F00;
+}
