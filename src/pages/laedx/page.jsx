@@ -1,14 +1,14 @@
 import { Canvas } from "@react-three/fiber";
-import { useScroll, ScrollControls, useProgress, Preload, useGLTF} from "@react-three/drei";
+import { useProgress, Preload, useGLTF, OrbitControls, Stats} from "@react-three/drei";
 import { useEffect, Suspense, useState, useRef } from "react";
+
 import { useFrame } from "@react-three/fiber";
 
 
-import { useScrollStore } from "@/hooks/useScrollStore";
+import SwipeController from "./controllers/SwipeController";
 import { useLoadingStore } from "@/hooks/useLoadingStore";
-import LoadingPage from "@/components/ui/Loading";
-import Scene   from "@/components/three/Scene";
-
+import LoadingPage from "./ui/Loading";
+import Scene   from "./three/Scene";
 
 // Set decoder path globally
 useGLTF.setDecoderPath("/draco/");
@@ -32,19 +32,6 @@ export function LoaderBridge() {
 }
 
 
-export function ScrollBridge() {
-    const scroll = useScroll();
-    const setScrollOffset = useScrollStore((state) => state.setScrollOffset);
-
-    useFrame(() => {
-        setScrollOffset(scroll.offset); // 0 → 1
-        // console.log('offset : ', scroll.offset);
-    });
-
-  return null;
-}
-
-
 function App() {
 
     const [started, setStarted] = useState(false);
@@ -52,27 +39,28 @@ function App() {
 
     return (
         <section className="h-svh md:h-screen w-full bg-black text-white no-scrollbar pointer-events-none">
-            {!started && <LoadingPage onStart={() => setStarted(true)} />}
-
-            <Canvas 
-                camera={{ position: [10, 45, 87] }}
+            {/* {!started && <LoadingPage onStart={() => setStarted(true)} />} */}
+            {/* <SwipeController /> */}
+            <Canvas
+                camera={{ position: [0, 2, 7] }}                                                                                                                                                                                                                                                                      
                 gl={{ antialias: true, alpha: true }}
                 onCreated={({ gl }) => {
                     gl.setClearColor(0x000000, 0)
                 }}
                 className="absolute inset-0 w-full h-full no-scrollbar"
+                shadows
             >
                 <Suspense fallback={null}>
                     <Preload all={true} />
                     <LoaderBridge />
-                    <ScrollControls pages={12} damping={0.1} className='no-scrollbar' >
-                        <Scene />
-                        <ScrollBridge pages={12} scrollRef={scrollRef} />
-                    </ScrollControls>
+                    <Scene />
+                    <Stats />
+                    <OrbitControls />
                 </Suspense>
             </Canvas>
         </section>
     );
 }
+
 
 export default App
