@@ -15,13 +15,15 @@ function ThreeText3D({
 	startRot = [],
 	endRot = [],
 	duration = 3,
-	stagger = 0.08
+	stagger = 0.08,
+	curveIntensity = 1.5 // Controls curve smoothness
+
 }) {
-
-	
 	const groupRef = useRef();
+	const curvesRef = useRef([]);
 
-	// // geometry config
+
+	// geometry config
 	const config = useMemo(() => ({
 		size: size,
 		height: 0.03,
@@ -33,69 +35,138 @@ function ThreeText3D({
 		bevelSegments: 2,
 	}), []);
 
+	const [
+		baseColor,
+		aoMap,
+		normalMap,
+		roughnessMap,
+		metalnessMap,
+		heightMap
+	] = useTexture([
+		"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_height.png",
+	]);
+
+	// Required for aoMap & heightMap
+	baseColor.wrapS = baseColor.wrapT = THREE.RepeatWrapping;
+	aoMap.wrapS = aoMap.wrapT = THREE.RepeatWrapping;
+	heightMap.wrapS = heightMap.wrapT = THREE.RepeatWrapping;
 
 
-	useLayoutEffect(() => {
-		if (!groupRef.current) return;
 
-		const tl = gsap.timeline({ defaults: { ease: "elastic.out(1, 0.5)" } });
 
-		groupRef.current.children.forEach((charMesh, i) => {
-			const sPos = startPos[i] || new THREE.Vector3();
-			const ePos = endPos[i] || new THREE.Vector3();
+    // Generate CatmullRomCurve3 for each character
+    useLayoutEffect(() => {
+        if (!groupRef.current) return;
 
-			const sRot = startRot[i] || new THREE.Euler();
-			const eRot = endRot[i] || new THREE.Euler();
+        curvesRef.current = groupRef.current.children.map((charMesh, i) => {
+            const sPos = startPos[i] || new THREE.Vector3();
+            const ePos = endPos[i] || new THREE.Vector3();
 
-			// Set initial position & rotation
-			charMesh.position.set(sPos.x, sPos.y, sPos.z);
-			charMesh.rotation.set(sRot.x, sRot.y, sRot.z);
+            // Create control points for the curve
+            const direction = new THREE.Vector3().subVectors(ePos, sPos);
+            const distance = direction.length();
 
-			// Animate to end position & rotation
-			tl.to(
-				charMesh.position,
-				{
-					x: ePos.x,
-					y: ePos.y,
-					z: ePos.z,
-					duration,
-				},
-				i * stagger
-			);
+            // Create perpendicular offset for larger arc
+            const perpendicular = new THREE.Vector3(-direction.z, direction.y * curveIntensity, direction.x);
+            perpendicular.normalize().multiplyScalar(distance * 0.5); // Increased multiplier from 0.3
 
-			tl.to(
-				charMesh.rotation,
-				{
-					x: eRot.x,
-					y: eRot.y,
-					z: eRot.z,
-					duration,
-				},
-				i * stagger
-			);
-		});
-	}, [startPos, endPos, startRot, endRot, duration, stagger]);
+            // Create multiple midpoints for a longer, more pronounced curve
+            const midPoint1 = new THREE.Vector3().addVectors(sPos, ePos).multiplyScalar(0.5);
+            midPoint1.add(perpendicular.clone().multiplyScalar(0.7));
+
+            const midPoint2 = new THREE.Vector3().addVectors(sPos, ePos).multiplyScalar(0.5);
+            midPoint2.add(perpendicular.clone().multiplyScalar(-0.5));
+
+            // Create the curve with more control points for longer path
+            const curve = new THREE.CatmullRomCurve3([
+                sPos.clone(),
+                sPos.clone().add(direction.clone().multiplyScalar(0.15)),
+                midPoint1,
+                midPoint2,
+                ePos.clone().sub(direction.clone().multiplyScalar(0.15)),
+                ePos.clone(),
+            ]);
+
+            return curve;
+        });
+
+        // Animate using curves
+        const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+
+        groupRef.current.children.forEach((charMesh, i) => {
+            const sRot = startRot[i] || new THREE.Euler();
+            const eRot = endRot[i] || new THREE.Euler();
+            const curve = curvesRef.current[i];
+
+            // Set initial position & rotation
+            charMesh.position.copy(startPos[i] || new THREE.Vector3());
+            charMesh.rotation.set(sRot.x, sRot.y, sRot.z);
+
+            const staggerDelay = i * stagger;
+
+            // Animate along curve using GSAP
+            const progressObj = { t: 0 };
+            tl.to(
+                progressObj,
+                {
+                    t: 1,
+                    duration,
+                    ease: "expo.inOut",
+                    onUpdate() {
+                        // Get point on curve based on progress
+                        const point = curve.getPoint(progressObj.t);
+                        charMesh.position.copy(point);
+                    }
+                },
+                staggerDelay
+            );
+
+            // Animate rotation
+            tl.to(
+                charMesh.rotation,
+                {
+                    x: eRot.x,
+                    y: eRot.y,
+                    z: eRot.z,
+                    duration,
+                    ease: "expo.inOut"
+                },
+                staggerDelay
+            );
+        });
+    }, [startPos, endPos, startRot, endRot, duration, stagger, curveIntensity]);
 
 	return (
 		<group ref={groupRef} position={position}>
-			{/* <Center> */}
-				{text.split('').map((char, i) => (
-					<Center
-						position={[startPos[i].x, startPos[i].y, startPos[i].z]}
-						rotation={[startRot[i].x, startRot[i].y, startRot[i].z]}
-						key={i}
+			{text.split('').map((char, i) => (
+				<Center
+					position={[startPos[i].x, startPos[i].y, startPos[i].z]}
+					rotation={[startRot[i].x, startRot[i].y, startRot[i].z]}
+					key={i}
+				>
+					<Text3D
+						font={fontUrl}
+						{...config}
 					>
-						<Text3D
-							font={fontUrl}
-							{...config}
-						>
-							{char}
-							<meshPhysicalMaterial color={'white'} metalness={1} roughness={1} />
-							{/* <primitive object={myMaterial} attach='material' /> */}
-						</Text3D>
-					</Center>
-				))}
-			{/* </Center> */}
+						{char}
+						{/* <meshPhysicalMaterial color={'white'} metalness={0.5} roughness={0.4} /> */}
+						<meshStandardMaterial
+							map={baseColor}
+							aoMap={aoMap}
+							normalMap={normalMap}
+							roughnessMap={roughnessMap}
+							metalnessMap={metalnessMap}
+							displacementMap={heightMap} 
+							displacementScale={0.1}
+						/>
+					</Text3D>
+				</Center>
+			))}
 		</group>
 	);
 }

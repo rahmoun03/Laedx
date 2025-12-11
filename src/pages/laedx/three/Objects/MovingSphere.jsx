@@ -12,36 +12,36 @@ import ThreeText3D from './ThreeText3D';
 // ###################################################
 // start
 const ladexStartPos = [
-	{x: -4.0,  y: -2.0, z: 2}, // L
-	{x: -4.5,  y: -2.0, z: -1}, // A
-	{x: 0.0,  y: -1.9, z: -3}, // E
-	{x: 1.2,  y: -1.7, z: 2}, // D
-	{x: 4.0,  y: -1.8, z: 0}, // X
+	new THREE.Vector3(-4.0, -2.0, 2), // L
+	new THREE.Vector3(-4.5, -2.0, -1), // A
+	new THREE.Vector3(0.0, -1.9, -3), // E
+	new THREE.Vector3(1.2, -1.7, 2), // D
+	new THREE.Vector3(4.0, -1.8, 0), // X
 ]
 
 const ladexStartRot = [
-	{x: -(Math.PI / 2),  y: 0.0, z: 0.0}, // A
-	{x: -(Math.PI / 2),  y: 0.0, z: 0.0}, // L
-	{x: -(Math.PI / 2),  y: 0.0, z: 0.0}, // E
-	{x: -(Math.PI / 2),  y: 0.0, z: 0.0}, // D
-	{x: -(Math.PI / 2),  y: 0.1, z: 0.0}, // X
+	new THREE.Vector3( -(Math.PI / 2), 0.0, 0.0), // A
+	new THREE.Vector3( -(Math.PI / 2), 0.0, 0.0), // L
+	new THREE.Vector3( -(Math.PI / 2), 0.0, 0.0), // E
+	new THREE.Vector3( -(Math.PI / 2), 0.0, 0.0), // D
+	new THREE.Vector3( -(Math.PI / 2), 0.1, 0.0), // X
 ]
 
 // end
 const ladexEndPos = [
-	{x: -0.8,  y: 0.0, z: 0}, // L
-	{x: -0.4,  y: 0.0, z: 0}, // A
-	{x: 0.0,  y: 0.0, z: 0}, // E
-	{x: 0.4,  y: 0.0, z: 0}, // D
-	{x: 0.8,  y: 0.0, z: 0}, // X
+	new THREE.Vector3( -0.8, 0.0, 0), // L
+	new THREE.Vector3( -0.4, 0.0, 0), // A
+	new THREE.Vector3( 0.0, 0.0, 0), // E
+	new THREE.Vector3( 0.4, 0.0, 0), // D
+	new THREE.Vector3( 0.8, 0.0, 0), // X
 ]
 
 const ladexEndRot = [
-	{x: 0.0,  y: 0.0, z: 0}, // L
-	{x: 0.0,  y: 0.0, z: 0}, // A
-	{x: 0.0,  y: 0.0, z: 0}, // E
-	{x: 0.0,  y: 0.0, z: 0}, // D
-	{x: 0.0,  y: 0.0, z: 0}, // X
+	new THREE.Vector3(0.0, 0.0, 0), // L
+	new THREE.Vector3(0.0, 0.0, 0), // A
+	new THREE.Vector3(0.0, 0.0, 0), // E
+	new THREE.Vector3(0.0, 0.0, 0), // D
+	new THREE.Vector3(0.0, 0.0, 0), // X
 ]
 // ###################################################
 
@@ -50,36 +50,36 @@ const ladexEndRot = [
 // ###################################################
 //start
 const digitalStartPos = [
-  { x: -3.2, y: -1.7, z: 0 },   // D
-  { x: -2.7, y: -1.7, z: 0 },   // I
-  { x: -2.2, y: -1.7, z: 0 },   // G
-  { x: -1.7, y: -1.7, z: 0 },   // I
-  { x: -1.2, y: -1.7, z: 0 },   // T
-  { x:  -0.7, y: -1.7, z: 0 },   // A
-  { x:  -0.2, y: -1.7, z: 0 },   // L
+  new THREE.Vector3( -3.2, -1.7, 0 ),   // D
+  new THREE.Vector3( -2.7, -1.7, 0 ),   // I
+  new THREE.Vector3( -2.2, -1.7, 0 ),   // G
+  new THREE.Vector3( -1.7, -1.7, 0 ),   // I
+  new THREE.Vector3( -1.2, -1.7, 0 ),   // T
+  new THREE.Vector3(  -0.7, -1.7, 0 ),   // A
+  new THREE.Vector3(  -0.2, -1.7, 0 ),   // L
 
-  { x:  0.8, y: -1.7, z: 0 },   // S
-  { x:  1.3, y: -1.7, z: 0 },   // T
-  { x:  1.8, y: -1.7, z: 0 },   // U
-  { x:  2.3, y: -1.7, z: 0 },   // D
-  { x:  2.8, y: -1.7, z: 0 },   // I
-  { x:  3.3, y: -1.7, z: 0 },   // O
+  new THREE.Vector3(  0.8, -1.7, 0 ),   // S
+  new THREE.Vector3(  1.3, -1.7, 0 ),   // T
+  new THREE.Vector3(  1.8, -1.7, 0 ),   // U
+  new THREE.Vector3(  2.3, -1.7, 0 ),   // D
+  new THREE.Vector3(  2.8, -1.7, 0 ),   // I
+  new THREE.Vector3(  3.3, -1.7, 0 ),   // O
 ];
 const digitalStartRot = [
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // D
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // I
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // G
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // I
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // T
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // A
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // L
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // D
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // I
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // G
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // I
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // T
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // A
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // L
 
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // S
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // T
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // U
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // D
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // I
-	{x: Math.PI / 2,  y: 0.0, z: 0}, // O
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // S
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // T
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // U
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // D
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // I
+	new THREE.Vector3( Math.PI / 2,  0.0, 0), // O
 ]
 
 
@@ -87,36 +87,37 @@ const pace = 0.14;
 
 // end
 const digitalEndPos = [
-  { x: -0.90 , y: -1, z: 0 },  // D
-  { x: -0.76 , y: -1, z: 0 },  // I
-  { x: -0.62 , y: -1, z: 0 },  // G
-  { x: -0.48 , y: -1, z: 0 },  // I
-  { x: -0.34 , y: -1, z: 0 },  // T
-  { x: -0.20 , y: -1, z: 0 },  // A
-  { x: -0.06 , y: -1, z: 0 },  // L
+  new THREE.Vector3( -0.90 , -1, 0 ),  // D
+  new THREE.Vector3( -0.76 , -1, 0 ),  // I
+  new THREE.Vector3( -0.62 , -1, 0 ),  // G
+  new THREE.Vector3( -0.48 , -1, 0 ),  // I
+  new THREE.Vector3( -0.34 , -1, 0 ),  // T
+  new THREE.Vector3( -0.20 , -1, 0 ),  // A
+  new THREE.Vector3( -0.06 , -1, 0 ),  // L
 
-  { x:  0.20 , y: -1, z: 0 },  // S
-  { x:  0.34 , y: -1, z: 0 },  // T
-  { x:  0.48 , y: -1, z: 0 },  // U
-  { x:  0.62 , y: -1, z: 0 },  // D
-  { x:  0.76 , y: -1, z: 0 },  // I
-  { x:  0.90, y: -1, z: 0 },  // O
+  new THREE.Vector3(  0.20 , -1, 0 ),  // S
+  new THREE.Vector3(  0.34 , -1, 0 ),  // T
+  new THREE.Vector3(  0.48 , -1, 0 ),  // U
+  new THREE.Vector3(  0.62 , -1, 0 ),  // D
+  new THREE.Vector3(  0.76 , -1, 0 ),  // I
+  new THREE.Vector3(  0.90, -1, 0 ),  // O
 ];
-const digitalEndRot = [
-	{x: 0.0,  y: 0.0, z: 0}, // D
-	{x: 0.0,  y: 0.0, z: 0}, // I
-	{x: 0.0,  y: 0.0, z: 0}, // G
-	{x: 0.0,  y: 0.0, z: 0}, // I
-	{x: 0.0,  y: 0.0, z: 0}, // T
-	{x: 0.0,  y: 0.0, z: 0}, // A
-	{x: 0.0,  y: 0.0, z: 0}, // L
 
-	{x: 0.0,  y: 0.0, z: 0}, // S
-	{x: 0.0,  y: 0.0, z: 0}, // T
-	{x: 0.0,  y: 0.0, z: 0}, // U
-	{x: 0.0,  y: 0.0, z: 0}, // D
-	{x: 0.0,  y: 0.0, z: 0}, // I
-	{x: 0.0,  y: 0.0, z: 0}, // O
+const digitalEndRot = [
+	new THREE.Vector3( 0.0,  0.0, 0), // D
+	new THREE.Vector3( 0.0,  0.0, 0), // I
+	new THREE.Vector3( 0.0,  0.0, 0), // G
+	new THREE.Vector3( 0.0,  0.0, 0), // I
+	new THREE.Vector3( 0.0,  0.0, 0), // T
+	new THREE.Vector3( 0.0,  0.0, 0), // A
+	new THREE.Vector3( 0.0,  0.0, 0), // L
+
+	new THREE.Vector3( 0.0,  0.0, 0), // S
+	new THREE.Vector3( 0.0,  0.0, 0), // T
+	new THREE.Vector3( 0.0,  0.0, 0), // U
+	new THREE.Vector3( 0.0,  0.0, 0), // D
+	new THREE.Vector3( 0.0,  0.0, 0), // I
+	new THREE.Vector3( 0.0,  0.0, 0), // O
 ]
 // ###################################################
 
@@ -159,8 +160,8 @@ const Title = () => {
 				startRot={ladexStartRot}
 				endPos={ladexEndPos}
 				endRot={ladexEndRot}
-				duration={6}
-				stagger={0.4}
+				duration={8}
+				stagger={0.1}
 			/>
 
 			<ThreeText3D
@@ -175,8 +176,8 @@ const Title = () => {
 				startRot={digitalStartRot}
 				endPos={digitalEndPos}
 				endRot={digitalEndRot}
-				duration={6}
-				stagger={0.4}
+				duration={8}
+				stagger={0.1}
 			/>
 		</group>
 	)
@@ -184,28 +185,51 @@ const Title = () => {
 
 
 
-export default function MovingSphere() {
+export default function MovingSphere({...props}) {
 	const meshRef = useRef()
 	const tProgress = useRef({ value: 0 });
 	const { scene } = useGLTF('/models/ball.glb');
+
+
+	const [
+		baseColor,
+		aoMap,
+		normalMap,
+		roughnessMap,
+		metalnessMap,
+		heightMap
+	] = useTexture([
+		"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_height.png",
+	]);
+
+	// Required for aoMap & heightMap
+	baseColor.wrapS = baseColor.wrapT = THREE.RepeatWrapping;
+	aoMap.wrapS = aoMap.wrapT = THREE.RepeatWrapping;
+	heightMap.wrapS = heightMap.wrapT = THREE.RepeatWrapping;
+
 
 
 	// ✅ Memoize curve so it's not recreated every render
 	const curve = useMemo(
 		() =>
 			new THREE.CatmullRomCurve3([
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 4.0,  0.0),
-				new THREE.Vector3(0.0, 5.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 2.0,  0.0),
+				new THREE.Vector3(0.0, 3.0,  0.0),
 				new THREE.Vector3(0.0, 30.0, 0.0),
 				new THREE.Vector3(0.0, 30.0, 0.0),
 				new THREE.Vector3(0.0, 30.0, 0.0),
@@ -233,30 +257,22 @@ export default function MovingSphere() {
 	})
 
 	return (
-		<group ref={meshRef} position={[0.0, 2.0, 0.0]}>
-			{/* <Center> */}
+		<group ref={meshRef} position={[0.0, 2.0, 0.0]} {...props} >
 
-			{/* ✅ Lower poly sphere: 16x16 is enough */}
-			{/* <Sphere args={[0.5, 32, 32]} >
+			<mesh>
+				<sphereGeometry args={[0.5, 64, 64]} />
 				<meshStandardMaterial
-					// emissive={"#FF5500"}
-					// emissiveIntensity={5}
-					roughness={1}
-					metalness={0}
-					color={"#ffffff"}
+					map={baseColor}
+					aoMap={aoMap}
+					normalMap={normalMap}
+					roughnessMap={roughnessMap}
+					metalnessMap={metalnessMap}
+					displacementMap={heightMap} 
+					displacementScale={0.1}
 				/>
-			</Sphere> */}
-			<primitive object={scene} scale={[1.1, 1.1, 1.1]} />
-
+			</mesh>
+			{/* <primitive object={scene} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow /> */}
 			<Title />
-
-			{/* ✅ Disable shadows unless critical */}
-			{/* <pointLight
-				position={[0, 0, 0]}
-				intensity={15}
-				color={"#FF5500"}
-			/> */}
-			{/* </Center> */}
 		</group>
 	)
 }

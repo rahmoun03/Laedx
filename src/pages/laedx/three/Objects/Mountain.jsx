@@ -30,8 +30,9 @@ function Mountain({
             position={position}
             rotation={rotation}
             {...props}
+            receiveShadow
         >
-            <primitive object={clonedScene} />
+            <primitive object={clonedScene} receiveShadow />
         </group>
     )
 }

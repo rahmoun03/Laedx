@@ -2,7 +2,8 @@ import { Html, Stars } from "@react-three/drei"
 import * as THREE from 'three';
 
 import Lights from "./Lights";
-// import Effects from "./Effects";
+import Effects from "./Effects";
+import DynamicDOF from "./DynamicDOF";
 import Camera from "./Camera";
 import Mountain from "./Objects/Mountain";
 import MovingSphere from "./Objects/MovingSphere";
@@ -18,14 +19,24 @@ import Glisa from './Objects/Glisa';
 
 
 
+const PlaneG = () => {
+
+	return(
+		<mesh position={[0, -0.4, 0]} rotation={[-(Math.PI / 2) , 0, 0]} receiveShadow >
+			<planeGeometry args={[50, 50]} />
+			<meshStandardMaterial color={"white"}  /> 
+		</mesh>
+	)
+}
+
 
 function Scene() {
 
 	const mountainProps = [
 		// { position: [0, -1.4, 0], scale: 0.05, rotation: [0, 0, 0] },
 		// { position: [80, -1.4, 0], scale: 0.05, rotation: [0, 0, 0] },
-		{ position: [0, -1.4, -80], scale: 0.05, rotation: [0, 0, 0] },
-		{ position: [80, -1.4, -80], scale: 0.05	, rotation: [0, 0, 0] },
+		{ position: [0, -1.4, -80], scale: 0.05, rotation: [0, 0, 0]} ,
+		{ position: [80, -1.4, -80], scale: 0.05	, rotation: [0, 0, 0]},
 	]
 
 	const textOptions = {
@@ -43,6 +54,7 @@ function Scene() {
 		<>
 			<Lights />
 			{/* <Effects /> */}
+			{/* <DynamicDOF /> */}
 			<Camera />
 			<Flag 
 				position={[-1, 0, -6]}
@@ -67,11 +79,12 @@ function Scene() {
 					{...props}
 				/>
 			))}
+			{/* <PlaneG /> */}
 
 			<MovingSphere />
 			{/* <RockPlanet /> */}
 			<Glisa position={[1, -10, -1]} rotation={[0, -0.3, 0.08]} />
-			<Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade />
+			<Stars radius={100} depth={50} count={500} factor={4} saturation={0} fade />
 		</>
 	)
 }

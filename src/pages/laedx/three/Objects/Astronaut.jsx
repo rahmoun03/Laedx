@@ -105,8 +105,9 @@ function Astronaut({
 			position={position}
 			rotation={rotation}
 			{...props}
+			 castShadow
 		>
-			<primitive object={scene} />
+			<primitive object={scene} castShadow />
 		</group>
 	);
 }

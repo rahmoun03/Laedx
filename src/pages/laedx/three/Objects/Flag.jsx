@@ -6,7 +6,8 @@ import * as THREE from 'three';
 function Flag({
     position,
     scale,
-    rotation
+    rotation,
+    ...props
 }) {
     const flagRef = useRef();
     const {scene , animations } = useGLTF('/models/OpFlagV2.glb');
@@ -27,8 +28,8 @@ function Flag({
     }, [animations]);
 
     return (
-        <group ref={flagRef} position={position} scale={scale} rotation={rotation} >
-            <primitive object={scene} />
+        <group ref={flagRef} position={position} scale={scale} rotation={rotation}  {...props} >
+            <primitive object={scene} castShadow receiveShadow />
         </group>
     );
 }

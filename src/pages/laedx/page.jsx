@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { useProgress, Preload, useGLTF, OrbitControls, Stats} from "@react-three/drei";
+import { useProgress, Preload, useGLTF, OrbitControls, Stats, SoftShadows} from "@react-three/drei";
 import { useEffect, Suspense, useState, useRef } from "react";
 
 import { useFrame } from "@react-three/fiber";
@@ -53,6 +53,7 @@ function App() {
                 <Suspense fallback={null}>
                     <Preload all={true} />
                     <LoaderBridge />
+			        <SoftShadows size={25} samples={10} focus={0} />
                     <Scene />
                     <Stats />
                     <OrbitControls />
