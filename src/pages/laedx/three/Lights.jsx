@@ -60,13 +60,13 @@ function Lights() {
 		/> */}
 
 		{/* Point Light */}
-		<pointLight position={[0, 2, 2]} intensity={3} castShadow />
+		<pointLight position={[0, 5, 3]} intensity={3} castShadow />
 
 		{/* Spot Light 1 */}
 		<spotLight
 			ref={spotOneRef}
 			position={[8, 30, 5]}
-			intensity={80}
+			intensity={100}
 			angle={0.25}
 			penumbra={1}
 			castShadow
@@ -76,7 +76,7 @@ function Lights() {
 		<spotLight
 			ref={spotTwoRef}
 			position={[-8, 30, 5]}
-			intensity={80}
+			intensity={100}
 			angle={0.25}
 			penumbra={1}
 			castShadow

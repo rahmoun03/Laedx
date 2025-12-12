@@ -35,21 +35,41 @@ function ThreeText3D({
 		bevelSegments: 2,
 	}), []);
 
+	// const [
+	// 	baseColor,
+	// 	aoMap,
+	// 	normalMap,
+	// 	roughnessMap,
+	// 	metalnessMap,
+	// 	heightMap
+	// ] = useTexture([
+	// 	"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
+	// 	"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
+	// 	"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
+	// 	"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
+	// 	"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
+	// 	"/textures/metal_scrached/Metal_scratched_009_height.png",
+	// ]);
+
 	const [
 		baseColor,
 		aoMap,
 		normalMap,
 		roughnessMap,
 		metalnessMap,
-		heightMap
+		heightMap,
+		specularMap
 	] = useTexture([
-		"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_height.png",
+		"/textures/Rock_Ore/Rock_Ore_001_COLOR.jpg",
+		"/textures/Rock_Ore/Rock_Ore_001_OCC.jpg",
+		"/textures/Rock_Ore/Rock_Ore_001_NORM.jpg",
+		"/textures/Rock_Ore/Rock_Ore_001_ROUGH.jpg",
+		"/textures/Rock_Ore/Rock_Ore_001_METAL.jpg",
+		"/textures/Rock_Ore/Rock_Ore_001_DISP.png",
+		"/textures/Rock_Ore/Rock_Ore_001_SPEC.jpg",
 	]);
+
+
 
 	// Required for aoMap & heightMap
 	baseColor.wrapS = baseColor.wrapT = THREE.RepeatWrapping;
@@ -152,18 +172,20 @@ function ThreeText3D({
 					<Text3D
 						font={fontUrl}
 						{...config}
+						castShadow
 					>
 						{char}
-						{/* <meshPhysicalMaterial color={'white'} metalness={0.5} roughness={0.4} /> */}
-						<meshStandardMaterial
+						<meshPhysicalMaterial color={'white'} metalness={0.5} roughness={0.4} />
+						{/* <meshPhongMaterial
 							map={baseColor}
 							aoMap={aoMap}
 							normalMap={normalMap}
 							roughnessMap={roughnessMap}
 							metalnessMap={metalnessMap}
-							displacementMap={heightMap} 
-							displacementScale={0.1}
-						/>
+							displacementMap={heightMap}
+							specularMap={specularMap}
+							displacementScale={0.05}
+						/> */}
 					</Text3D>
 				</Center>
 			))}

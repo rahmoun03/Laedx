@@ -16,6 +16,14 @@ function Mountain({
 
     const clonedScene = useMemo(() => clone(gltf.scene), [gltf.scene])
 
+    gltf.scene.traverse((obj, index) => {
+        if (obj.isMesh) {
+            console.log('moutain ' + index, obj);
+            // obj.castShadow = true
+            obj.receiveShadow = true
+        }
+    })
+
     useFrame(({ camera }) => {
         group.current.children.forEach((child) => {
             const dist = camera.position.distanceTo(child.position)

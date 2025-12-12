@@ -40,7 +40,7 @@ function App() {
     return (
         <section className="h-svh md:h-screen w-full bg-black text-white no-scrollbar pointer-events-none">
             {/* {!started && <LoadingPage onStart={() => setStarted(true)} />} */}
-            {/* <SwipeController /> */}
+            <SwipeController />
             <Canvas
                 camera={{ position: [0, 2, 7] }}                                                                                                                                                                                                                                                                      
                 gl={{ antialias: true, alpha: true }}
@@ -53,10 +53,10 @@ function App() {
                 <Suspense fallback={null}>
                     <Preload all={true} />
                     <LoaderBridge />
-			        <SoftShadows size={25} samples={10} focus={0} />
+			        {/* <SoftShadows size={25} samples={10} focus={0} /> */}
                     <Scene />
                     <Stats />
-                    <OrbitControls />
+                    {/* <OrbitControls /> */}
                 </Suspense>
             </Canvas>
         </section>

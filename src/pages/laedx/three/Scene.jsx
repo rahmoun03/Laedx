@@ -53,7 +53,7 @@ function Scene() {
 	return (
 		<>
 			<Lights />
-			{/* <Effects /> */}
+			<Effects />
 			{/* <DynamicDOF /> */}
 			<Camera />
 			<Flag 
@@ -64,7 +64,7 @@ function Scene() {
 
 			<Astronaut
 				url={'/models/astronaut/source/OpAstronaut.glb'}
-				initialAnimation="wave"
+				initialAnimation="idle"
 				position={[2, 0, -1]}
 				rotation={[0, -0.2, 0]}
 			/>

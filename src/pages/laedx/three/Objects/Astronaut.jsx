@@ -38,49 +38,51 @@ function Astronaut({
 
 	useEffect(() => {
 		scene.traverse((child) => {
-		if (child.isMesh) {
-			if (child.name === "mesh_0") {
-				// Backpack material
-				child.material = new THREE.MeshStandardMaterial({
-					map: bag0,             // main albedo
-					metalnessMap: bag1,
-					normalMap: bag2,       // example normal
-					roughnessMap: bag3,    // roughness
-					transparent: true,
-					roughness: 1,
-					metalness: 1,
-					// wireframe: true,
-				})
-			} else if (child.name === "mesh_1") {
-				// Astronaut material
-				child.material = new THREE.MeshStandardMaterial({
-					color: new THREE.Color('#00FF00'),             // main albedo
-					// map: man4,             // main albedo
-					normalMap: man6,    // normal
-					roughnessMap: man5A,   // roughness
-					metalnessMap: man5RGB,    // metalness
-					aoMap: man7,           // ambient occlusion
-					transparent: true,
-					roughness: 1,
-					metalness: 1,
-				})
+			if (child.isMesh) {
+				if (child.name === "mesh_0") {
+					// Backpack material
+					child.material = new THREE.MeshStandardMaterial({
+						map: bag0,             // main albedo
+						metalnessMap: bag1,
+						normalMap: bag2,       // example normal
+						roughnessMap: bag3,    // roughness
+						transparent: true,
+						roughness: 1,
+						metalness: 1,
+						// wireframe: true,
+					})
+				} else if (child.name === "mesh_1") {
+					// Astronaut material
+					child.material = new THREE.MeshStandardMaterial({
+						color: new THREE.Color('#00FF00'),             // main albedo
+						// map: man4,             // main albedo
+						normalMap: man6,    // normal
+						roughnessMap: man5A,   // roughness
+						metalnessMap: man5RGB,    // metalness
+						aoMap: man7,           // ambient occlusion
+						transparent: true,
+						roughness: 1,
+						metalness: 1,
+					})
+				}
+				else if (child.name === "mesh_2") {
+					// Astronaut material
+					child.material = new THREE.MeshStandardMaterial({
+						map: man4,             // main albedo
+						normalMap: man6,    // normal
+						roughnessMap: man5A,   // roughness
+						metalnessMap: man5RGB,    // metalness
+						// aoMap: man7,           // ambient occlusion
+						transparent: true,
+						roughness: 1,
+						metalness: 1,
+						// wireframe: true,
+					})
+				}
+				child.castShadow = true
+				// child.receiveShadow = true
+				child.material.needsUpdate = true
 			}
-			else if (child.name === "mesh_2") {
-				// Astronaut material
-				child.material = new THREE.MeshStandardMaterial({
-					map: man4,             // main albedo
-					normalMap: man6,    // normal
-					roughnessMap: man5A,   // roughness
-					metalnessMap: man5RGB,    // metalness
-					// aoMap: man7,           // ambient occlusion
-					transparent: true,
-					roughness: 1,
-					metalness: 1,
-					// wireframe: true,
-				})
-			}
-			child.material.needsUpdate = true
-		}
 		})
 	}, [scene, bag0, bag1, bag2, bag3, man4, man5A, man5RGB, man6, man7])
 
