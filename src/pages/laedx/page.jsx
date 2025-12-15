@@ -42,7 +42,7 @@ function App() {
             {/* {!started && <LoadingPage onStart={() => setStarted(true)} />} */}
             <SwipeController />
             <Canvas
-                camera={{ position: [0, 2, 7] }}                                                                                                                                                                                                                                                                      
+                camera={{ position: [0, 2, 7] }}
                 gl={{ antialias: true, alpha: true }}
                 onCreated={({ gl }) => {
                     gl.setClearColor(0x000000, 0)

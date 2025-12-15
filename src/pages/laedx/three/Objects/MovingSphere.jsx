@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from "react"
+import { useRef, useMemo, useEffect, useLayoutEffect } from "react"
 import { useFrame } from "@react-three/fiber"
 import { Sphere, useTexture, Center, Text3D, useGLTF } from "@react-three/drei"
 import * as THREE from "three"
@@ -6,6 +6,7 @@ import gsap from "gsap";
 
 import fontUrl from '@/assets/fonts/Audiowide_Regular.json';
 import ThreeText3D from './ThreeText3D';
+import { mainTimeline } from "@/hooks/animationTimeline";
 
 
 // LAEDX
@@ -216,6 +217,70 @@ const Title = () => {
 
 
 
+		// pulse effect with changing animation
+	useEffect(() => {
+		if (!titleRef.current) return;
+
+		mainTimeline.call(
+			() => {
+				console.log("TEXT END PULSE TRIGGERED");
+
+				titleRef.current.traverse((mesh) => {
+					if (!mesh.isMesh) return;
+
+					const mat = mesh.material;
+					if (!mat || !mat.color) return;
+
+					mat.needsUpdate = true;
+
+					const baseColor = mat.color.clone();
+
+					const pulseColor = new THREE.Color(0.3, 0.3, 1.3);
+
+					// Color pulse
+					gsap.to(mat.color, {
+						r: pulseColor.r,
+						g: pulseColor.g,
+						b: pulseColor.b,
+						duration: 0.5,
+						yoyo: true,
+						// repeat: 1,
+						ease: "power2.inOut",
+						// onComplete: () => mat.color.copy(baseColor),
+					});
+
+					// // Roughness flash
+					// gsap.to(
+					// 	mesh.rotation, {
+					// 		// x: 0.05,
+					// 		y: Math.PI * 2,
+					// 		// z: true,
+					// 		// yoyoEase: true,
+					// 		// repeat: 1,
+					// 		ease: "power2.out",
+					// 	}
+					// );
+
+					// Scale pulse
+					gsap.fromTo(
+						mesh.scale,
+						{ x: 1.1, y: 1.1, z: 1.1 },
+						{
+							x: 1,
+							y: 1,
+							z: 1,
+							duration: 0.35,
+							yoyo: true,
+							ease: "power2.inOut",
+						}
+					);
+				});
+			},
+			null,
+			"textEnd"
+		);
+	}, []);
+
 	return (
 		<group position={[0, 0, 0]} rotation={[0, 0, 0]} ref={titleRef}>
 
@@ -231,7 +296,7 @@ const Title = () => {
 				startRot={ladexStartRot}
 				endPos={ladexEndPos}
 				endRot={ladexEndRot}
-				duration={8}
+				duration={9}
 				stagger={0.05}
 			/>
 
@@ -247,7 +312,7 @@ const Title = () => {
 				startRot={digitalStartRot}
 				endPos={digitalEndPos}
 				endRot={digitalEndRot}
-				duration={8}
+				duration={9}
 				stagger={0.05}
 			/>
 			
@@ -275,7 +340,7 @@ const Title = () => {
 export default function MovingSphere({...props}) {
 	const meshRef = useRef()
 	const tProgress = useRef({ value: 0 });
-	const { scene } = useGLTF('/models/ball.glb');
+	const { scene } = useGLTF('/models/earth.glb');
 
 
 	scene.traverse((child) => {
@@ -373,11 +438,11 @@ export default function MovingSphere({...props}) {
 	)
 
 	useEffect(() => {
-		gsap.to(tProgress.current, {
+		mainTimeline.to(tProgress.current, {
 			value: 1,
 			duration: 15,
 			ease: "power2.inOut",
-		});
+		}, "intro");
 	}, [])
 
 	useFrame(() => {

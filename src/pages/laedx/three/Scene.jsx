@@ -1,10 +1,10 @@
 import { Html, Stars } from "@react-three/drei"
 import * as THREE from 'three';
-
+import { useEffect  } from 'react';
 import Lights from "./Lights";
 import Effects from "./Effects";
 import DynamicDOF from "./DynamicDOF";
-import Camera from "./Camera";
+import CameraController from "./Camera";
 import Mountain from "./Objects/Mountain";
 import MovingSphere from "./Objects/MovingSphere";
 import BackgroundAudio from "@/components/three/BackgroundAudio";
@@ -14,6 +14,7 @@ import ThreeText3D from './Objects/ThreeText3D';
 import RockPlanet from './Objects/RockPlanet';
 // import RockPath from './Objects/RockPath';
 import Glisa from './Objects/Glisa';
+import { mainTimeline } from "../../../hooks/animationTimeline";
 // import NoveSphere from './Objects/NoveSphere';
 // import HiveSphere from './Objects/HiveSphere';
 
@@ -50,12 +51,16 @@ function Scene() {
 		bevelSegments: 1,
 	}
 
+	useEffect(() => {
+		mainTimeline.play();
+	}, []);
+
 	return (
 		<>
+			<CameraController />
 			<Lights />
-			<Effects />
+			{/* <Effects /> */}
 			{/* <DynamicDOF /> */}
-			<Camera />
 			<Flag 
 				position={[-1, 0, -6]}
 				scale={[2.5, 2.5, 2.5]}

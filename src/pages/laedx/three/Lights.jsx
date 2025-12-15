@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import gsap from 'gsap'
+import { mainTimeline } from '@/hooks/animationTimeline';
 
 
 
@@ -8,11 +9,17 @@ function Lights() {
 	const spotOneRef = useRef();
 	const spotTwoRef = useRef();
 
-	const progress = useRef({value : 0});
+	const target = useRef()
+
+
+
+
 
 
 	useEffect(() => {
-		gsap.to(spotOneRef.current.target.position , {
+
+
+		mainTimeline.to(spotOneRef.current.target.position , {
 			x :  0,
 			y :  30,
 			z :  0,
@@ -20,10 +27,13 @@ function Lights() {
 			ease: "power4.inOut",
 			onUpdate : () => {
 				spotOneRef.current.target.updateMatrixWorld();
+			},
+			onComplete : () => {
+				spotOneRef.current.target.updateMatrixWorld();
 			}
-		}, 'start-=1')
+		}, "intro+=7.5")
 
-		gsap.to(spotTwoRef.current.target.position , {
+		mainTimeline.to(spotTwoRef.current.target.position , {
 			x :  0,
 			y :  30,
 			z :  0,
@@ -31,56 +41,50 @@ function Lights() {
 			ease: "power4.inOut",
 			onUpdate : () => {
 				spotTwoRef.current.target.updateMatrixWorld();
+			},
+			onComplete : () => {
+				spotTwoRef.current.target.updateMatrixWorld();
 			}
-		}, 'start-=1')
-	})
+		}, "intro+=7.5")
 
-	// useFrame(() => {
-		// // Update target positions
-		// if (spotOneRef.current?.target) {
-		// 	spotOneRef.current.target.position.set(8, 0, 5);
-		// 	spotOneRef.current.target.updateMatrixWorld();
-		// }
-		// if (spotTwoRef.current?.target) {
-		// 	spotTwoRef.current.target.position.set(-8, 0, 5);
-		// 	spotTwoRef.current.target.updateMatrixWorld();
-		// }
 
-		// console.log('progress : ', progress.current.value);
-		
-	// });
+	}, [])
 
 	return (
 		<>
-		{/* Directional Light */}
-		{/* <directionalLight 
-			position={[0, 500, 500]}
-			intensity={0.5}
-			castShadow	
-		/> */}
+			{/* Directional Light */}
+			<directionalLight 
+				position={[0, 500, 500]}
+				intensity={0.05}
+				castShadow	
+			/>
 
-		{/* Point Light */}
-		<pointLight position={[0, 5, 3]} intensity={3} castShadow />
+			{/* Point Light */}
+			<pointLight position={[0, 5, 3]} intensity={3} castShadow />
 
-		{/* Spot Light 1 */}
-		<spotLight
-			ref={spotOneRef}
-			position={[8, 30, 5]}
-			intensity={100}
-			angle={0.25}
-			penumbra={1}
-			castShadow
-		/>
+			{/* Spot Light 1 */}
+			<spotLight
+				ref={spotOneRef}
+				position={[8, 30, 5]}
+				intensity={100}
+				angle={0.25}
+				penumbra={1}
+				castShadow
+			/>
 
-		{/* Spot Light 2 */}
-		<spotLight
-			ref={spotTwoRef}
-			position={[-8, 30, 5]}
-			intensity={100}
-			angle={0.25}
-			penumbra={1}
-			castShadow
-		/>
+			{/* Spot Light 2 */}
+			<spotLight
+				ref={spotTwoRef}
+				position={[-8, 30, 5]}
+				intensity={100}
+				angle={0.25}
+				penumbra={1}
+				castShadow
+			/>
+
+
+			{/* <object3D ref={target} position={[0, 0, 0]} /> */}
+			{/* <object3D ref={target2} position={[0, 0, 0]} /> */}
 		</>
 	);
 }

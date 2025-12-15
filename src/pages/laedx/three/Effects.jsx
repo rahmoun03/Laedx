@@ -12,13 +12,13 @@ export default function Effects(){
 					intensity={1.0}
 				/>
 
-				{/* <DepthOfField
+				<DepthOfField
 					focusDistance={1}      // Adjust based on your scene
 					focalLength={0.005}    // Higher = more blur
 					bokehScale={1}         // Blur quality
 					width={480}
 					height={480}
-				/> */}
+				/>
 			</EffectComposer>
 		</>
 	)

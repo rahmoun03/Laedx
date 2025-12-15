@@ -2,10 +2,11 @@ import { useRef, useEffect } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import gsap from "gsap";
+import { mainTimeline } from '@/hooks/animationTimeline';
 
 export default function CameraController() {
-	const shakeIntensity = 0.015; // max shake
-	const shakeFreq = 2; // speed of shake
+	const shakeIntensity = 0.005; // max shake
+	const shakeFreq = 1; // speed of shake
 	const shake = new THREE.Vector3();
 
 	const { set, size } = useThree();
@@ -18,17 +19,17 @@ export default function CameraController() {
 
 	// CAMERA PATH
 	const curve = new THREE.CatmullRomCurve3([
-		new THREE.Vector3(0.0, 2.0, 9.0),
-		new THREE.Vector3(0.0, 2.0, 8.8),
-		new THREE.Vector3(0.0, 2.0, 8.6),
-		new THREE.Vector3(0.0, 2.0, 8.4),
-		new THREE.Vector3(0.0, 2.0, 8.2),
-		new THREE.Vector3(0.0, 2.0, 8.0),
-		new THREE.Vector3(0.0, 2.0, 2.0),
-		new THREE.Vector3(0.0, 2.0, 2.0),
-		new THREE.Vector3(0.0, 2.0, 2.0),
-		new THREE.Vector3(0.0, 2.0, 2.0),
-		new THREE.Vector3(0.0, 2.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 9.0),
+		new THREE.Vector3(0.0, 1.0, 8.6),
+		new THREE.Vector3(0.0, 1.0, 8.2),
+		new THREE.Vector3(0.0, 1.0, 7.8),
+		new THREE.Vector3(0.0, 1.0, 7.4),
+		new THREE.Vector3(0.0, 1.0, 6.0),
+		new THREE.Vector3(0.0, 1.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 2.0),
 		new THREE.Vector3(0.0, 3.0, 2.0),
 		new THREE.Vector3(0.0, 30.0, 2.0),
 		new THREE.Vector3(0.0, 30.0, 2.0),
@@ -60,9 +61,7 @@ export default function CameraController() {
 
 	const smoothedLook = new THREE.Vector3();
 
-	// INIT CAMERAS
 	useEffect(() => {
-		// Camera A (animated)
 		cam.current = new THREE.PerspectiveCamera(
 			95,
 			size.width / size.height,
@@ -70,20 +69,17 @@ export default function CameraController() {
 			1000
 		);
 		cam.current.position.copy(curve.getPoint(0));
+		cam.current.lookAt(lookAtCurve.getPoint(0));
 
-
-
-		// start with camera A
 		set({ camera: cam.current });
 
-		gsap.to(tProgress.current, {
+		mainTimeline.to(tProgress.current, {
 			value: 1,
 			duration: 15,
 			ease: "power2.inOut",
-		});
+		}, "intro" );
 	}, []);
 
-	// HANDLE RESIZE
 	useEffect(() => {
 		if (!cam.current) return;
 		cam.current.aspect = size.width / size.height;
