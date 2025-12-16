@@ -40,9 +40,9 @@ function DynamicDOF() {
       <EffectComposer>
         <DepthOfField
           ref={dofRef}
-          focusDistance={5}      // Adjust based on your scene
+          focusDistance={3}      // Adjust based on your scene
           focalLength={0.025}    // Higher = more blur
-          bokehScale={3}         // Blur quality
+          bokehScale={1}         // Blur quality
           width={1024}
           height={1024}
         />

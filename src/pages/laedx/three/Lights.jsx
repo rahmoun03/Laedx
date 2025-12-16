@@ -18,7 +18,6 @@ function Lights() {
 
 	useEffect(() => {
 
-
 		mainTimeline.to(spotOneRef.current.target.position , {
 			x :  0,
 			y :  30,
@@ -31,7 +30,7 @@ function Lights() {
 			onComplete : () => {
 				spotOneRef.current.target.updateMatrixWorld();
 			}
-		}, "intro+=7.5")
+		}, "intro+=6.5")
 
 		mainTimeline.to(spotTwoRef.current.target.position , {
 			x :  0,
@@ -45,7 +44,7 @@ function Lights() {
 			onComplete : () => {
 				spotTwoRef.current.target.updateMatrixWorld();
 			}
-		}, "intro+=7.5")
+		}, "intro+=6.5")
 
 
 	}, [])
@@ -53,14 +52,15 @@ function Lights() {
 	return (
 		<>
 			{/* Directional Light */}
-			<directionalLight 
+			<directionalLight
+				// color='green'
 				position={[0, 500, 500]}
 				intensity={0.05}
 				castShadow	
 			/>
 
 			{/* Point Light */}
-			<pointLight position={[0, 5, 3]} intensity={3} castShadow />
+			<pointLight position={[0, 10, 3]} intensity={30} castShadow />
 
 			{/* Spot Light 1 */}
 			<spotLight
@@ -75,6 +75,7 @@ function Lights() {
 			{/* Spot Light 2 */}
 			<spotLight
 				ref={spotTwoRef}
+				// color='blue'
 				position={[-8, 30, 5]}
 				intensity={100}
 				angle={0.25}

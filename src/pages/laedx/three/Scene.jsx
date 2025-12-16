@@ -1,6 +1,12 @@
 import { Html, Stars } from "@react-three/drei"
 import * as THREE from 'three';
 import { useEffect  } from 'react';
+import { Physics } from '@react-three/rapier';
+
+
+
+
+
 import Lights from "./Lights";
 import Effects from "./Effects";
 import DynamicDOF from "./DynamicDOF";
@@ -57,39 +63,41 @@ function Scene() {
 
 	return (
 		<>
-			<CameraController />
-			<Lights />
-			{/* <Effects /> */}
-			{/* <DynamicDOF /> */}
-			<Flag 
-				position={[-1, 0, -6]}
-				scale={[2.5, 2.5, 2.5]}
-				rotation={[0, Math.PI, 0]}
-			/>
-
-			<Astronaut
-				url={'/models/astronaut/source/OpAstronaut.glb'}
-				initialAnimation="idle"
-				position={[2, 0, -1]}
-				rotation={[0, -0.2, 0]}
-			/>
-			<BackgroundAudio 
-				url="/audio/Laedx_Jingle_v1.mp3" 
-				play={true} 
-			/>
-			{mountainProps.map((props, index) => (
-				<Mountain
-					key={index}
-					url={'/models/OpMountain.glb'}
-					{...props}
+			<Physics gravity={[0, 0, 0]}>
+				<CameraController />
+				<Lights />
+				{/* <Effects /> */}
+				{/* <DynamicDOF /> */}
+				<Flag 
+					position={[-1, 0, -6]}
+					scale={[2.5, 2.5, 2.5]}
+					rotation={[0, Math.PI, 0]}
 				/>
-			))}
-			{/* <PlaneG /> */}
 
-			<MovingSphere />
-			{/* <RockPlanet /> */}
-			<Glisa position={[1, -10, -1]} rotation={[0, -0.3, 0.08]} />
-			<Stars radius={100} depth={50} count={500} factor={4} saturation={0} fade />
+				<Astronaut
+					url={'/models/astronaut/source/OpAstronaut.glb'}
+					initialAnimation="idle"
+					position={[2, 0, -1]}
+					rotation={[0, -0.2, 0]}
+				/>
+				<BackgroundAudio 
+					url="/audio/Laedx_Jingle_v1.mp3" 
+					play={true} 
+				/>
+				{mountainProps.map((props, index) => (
+					<Mountain
+						key={index}
+						url={'/models/OpMountain.glb'}
+						{...props}
+					/>
+				))}
+				{/* <PlaneG /> */}
+
+				<MovingSphere />
+				{/* <RockPlanet /> */}
+				<Glisa position={[1, -10, -1]} rotation={[0, -0.3, 0.08]} />
+				<Stars radius={100} depth={50} count={500} factor={4} saturation={0} fade />
+			</Physics>
 		</>
 	)
 }

@@ -9,7 +9,7 @@ export default function CameraController() {
 	const shakeFreq = 1; // speed of shake
 	const shake = new THREE.Vector3();
 
-	const { set, size } = useThree();
+	const { set, size, camera } = useThree();
 
 	const tProgress = useRef({ value: 0 });
 	const activeCam = useRef("A"); // "A" or "B"
@@ -32,10 +32,10 @@ export default function CameraController() {
 		new THREE.Vector3(0.0, 1.0, 2.0),
 		new THREE.Vector3(0.0, 3.0, 2.0),
 		new THREE.Vector3(0.0, 30.0, 2.0),
-		new THREE.Vector3(0.0, 30.0, 2.0),
-		new THREE.Vector3(0.0, 30.0, 2.0),
-		new THREE.Vector3(0.0, 30.0, 2.0),
-		new THREE.Vector3(0.0, 30.0, 2.0),
+		// new THREE.Vector3(0.0, 30.0, 2.0),
+		// new THREE.Vector3(0.0, 30.0, 2.0),
+		// new THREE.Vector3(0.0, 30.0, 2.0),
+		// new THREE.Vector3(0.0, 30.0, 2.0),
 	]);
 
 	// LOOK-AT PATH
@@ -53,47 +53,48 @@ export default function CameraController() {
 		new THREE.Vector3(0.0, 2.0, 0.0),
 		new THREE.Vector3(0.0, 3.0, 0.0),
 		new THREE.Vector3(0.0, 30.0, 0.0),
-		new THREE.Vector3(0.0, 30.0, 0.0),
-		new THREE.Vector3(0.0, 30.0, 0.0),
-		new THREE.Vector3(0.0, 30.0, 0.0),
-		new THREE.Vector3(0.0, 30.0, 0.0),
+		// new THREE.Vector3(0.0, 30.0, 0.0),
+		// new THREE.Vector3(0.0, 30.0, 0.0),
+		// new THREE.Vector3(0.0, 30.0, 0.0),
+		// new THREE.Vector3(0.0, 30.0, 0.0),
 	]);
 
 	const smoothedLook = new THREE.Vector3();
 
 	useEffect(() => {
-		cam.current = new THREE.PerspectiveCamera(
-			95,
-			size.width / size.height,
-			0.1,
-			1000
-		);
-		cam.current.position.copy(curve.getPoint(0));
-		cam.current.lookAt(lookAtCurve.getPoint(0));
-
-		set({ camera: cam.current });
+		camera.fov = 95;
+		camera.near = 0.1;
+		camera.far = 1000;
+		camera.position.copy(curve.getPoint(0));
+		camera.lookAt(lookAtCurve.getPoint(0));
+		camera.updateProjectionMatrix();
 
 		mainTimeline.to(tProgress.current, {
 			value: 1,
-			duration: 15,
-			ease: "power2.inOut",
+			duration: 12,
+			ease: "power3.inOut",
+			onComplete: () => {
+				console.log('CAMERA : ', camera)
+				mainTimeline.addLabel("textEnd");
+			}
 		}, "intro" );
 	}, []);
 
 	useEffect(() => {
-		if (!cam.current) return;
-		cam.current.aspect = size.width / size.height;
-		cam.current.updateProjectionMatrix();
+		if (!camera) return;
+		camera.aspect = size.width / size.height;
+		camera.updateProjectionMatrix();
 	}, [size]);
 
 	// ANIMATE CAMERA 
 	useFrame((state) => {
 		const t = tProgress.current.value;
+		if(t >= 1) return;
 
-
+		console.log('hello useFrame');
 		// Move Camera
 		const camPos = curve.getPoint(t);
-		cam.current.position.lerp(camPos, 0.1);
+		camera.position.lerp(camPos, 0.1);
 
 		// Smooth Look At
 		const target = lookAtCurve.getPoint(t);
@@ -112,11 +113,9 @@ export default function CameraController() {
 			0
 		);
 
-		cam.current.position.add(shake);
+		camera.position.add(shake);
 		// =================================
-
-		cam.current.lookAt(smoothedLook);
-		
+		camera.lookAt(smoothedLook);
 	});
 
 	return null;

@@ -21,6 +21,7 @@ function ThreeText3D({
 
 }) {
 	const groupRef = useRef();
+	
 	const curvesRef = useRef([]);
 
 
@@ -113,8 +114,6 @@ function ThreeText3D({
                 `intro+=${staggerDelay}`
             );
         });
-
-		mainTimeline.addLabel("textEnd");
 
     }, [startPos, endPos, startRot, endRot, duration, stagger, curveIntensity]);
 

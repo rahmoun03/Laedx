@@ -1,5 +1,5 @@
 import { useRef, useMemo, useEffect, useLayoutEffect } from "react"
-import { useFrame } from "@react-three/fiber"
+import { useFrame, useThree} from "@react-three/fiber"
 import { Sphere, useTexture, Center, Text3D, useGLTF } from "@react-three/drei"
 import * as THREE from "three"
 import gsap from "gsap";
@@ -197,8 +197,14 @@ const togetherEndRot = [
 
 const Title = () => {
 
+	console.log('title called !')
+
 	// const { scene } = useGLTF("/models/OpX.glb");
 	const titleRef = useRef();
+	const { camera } = useThree();
+	const shakeTlRef = useRef();
+
+
 
 	// useEffect(() => {
 	// 	console.log(scene)
@@ -215,71 +221,105 @@ const Title = () => {
 	// 	})
 	// }, [scene])
 
+	const shakeCamera = () => {
 
+		console.log('shake camera called !!')
+		if (shakeTlRef.current) {
+			shakeTlRef.current.kill();
+		}
+		const strength = 0.1;
+		const startPos = camera.position.clone();
+		console.log('camera pos : ', startPos )
 
-		// pulse effect with changing animation
+		shakeTlRef.current = gsap.timeline({
+			onComplete: () => {
+				camera.position.copy(startPos);
+			},
+		});
+
+		shakeTlRef.current
+			.to(camera.position, {
+				x: startPos.x + (Math.random() - 0.5) * strength,
+				y: startPos.y + (Math.random() - 0.5) * strength,
+				duration: 0.08,
+				repeat: 4,
+				yoyo: true,
+				ease: "power2.inOut",
+			})
+			.to(camera.position, {
+				x: startPos.x,
+				y: startPos.y,
+				duration: 0.12,
+				ease: "power3.out",
+			})
+			gsap.fromTo( camera.rotation,
+			{ z: 0.0 },
+			{
+				z: 0.02,
+				duration: 0.06,
+				yoyo: true,
+				repeat: 3,
+				ease: "power2.inOut",
+			}
+		);
+	};
+
+	// pulse effect
 	useEffect(() => {
 		if (!titleRef.current) return;
 
-		mainTimeline.call(
-			() => {
-				console.log("TEXT END PULSE TRIGGERED");
+		mainTimeline.call(() => {
+			console.log("TEXT END PULSE TRIGGERED");
+			shakeCamera();
 
-				titleRef.current.traverse((mesh) => {
-					if (!mesh.isMesh) return;
+			const tl = gsap.timeline({
+				onComplete: () => {
+					console.log('enable Physics');
+				},
+			});
 
-					const mat = mesh.material;
-					if (!mat || !mat.color) return;
+			titleRef.current.traverse((mesh) => {
+				if (!mesh.isMesh) return;
 
-					mat.needsUpdate = true;
+				const mat = mesh.material;
+				if (!mat?.color) return;
 
-					const baseColor = mat.color.clone();
+				const pulseColor = new THREE.Color(0.3, 0.3, 1.3);
 
-					const pulseColor = new THREE.Color(0.3, 0.3, 1.3);
-
-					// Color pulse
-					gsap.to(mat.color, {
+				// COLOR PULSE
+				tl.to(
+					mat.color,
+					{
 						r: pulseColor.r,
 						g: pulseColor.g,
 						b: pulseColor.b,
-						duration: 0.5,
+						duration: 0.35,
 						yoyo: true,
-						// repeat: 1,
+						repeat: 1,
 						ease: "power2.inOut",
-						// onComplete: () => mat.color.copy(baseColor),
-					});
+					},
+					0
+				);
 
-					// // Roughness flash
-					// gsap.to(
-					// 	mesh.rotation, {
-					// 		// x: 0.05,
-					// 		y: Math.PI * 2,
-					// 		// z: true,
-					// 		// yoyoEase: true,
-					// 		// repeat: 1,
-					// 		ease: "power2.out",
-					// 	}
-					// );
-
-					// Scale pulse
-					gsap.fromTo(
-						mesh.scale,
-						{ x: 1.1, y: 1.1, z: 1.1 },
-						{
-							x: 1,
-							y: 1,
-							z: 1,
-							duration: 0.35,
-							yoyo: true,
-							ease: "power2.inOut",
-						}
-					);
-				});
-			},
-			null,
-			"textEnd"
-		);
+				// SCALE PULSE
+				tl.fromTo(
+					mesh.scale,
+					{ x: 1, y: 1, z: 1 },
+					{
+						x: 1.15,
+						y: 1.15,
+						z: 1.15,
+						duration: 0.25,
+						yoyo: true,
+						repeat: 1,
+						ease: "power2.inOut",
+					},
+					0
+				);
+			});
+		}, null, "textEnd");
 	}, []);
+
 
 	return (
 		<group position={[0, 0, 0]} rotation={[0, 0, 0]} ref={titleRef}>
@@ -338,35 +378,13 @@ const Title = () => {
 
 
 export default function MovingSphere({...props}) {
-	const meshRef = useRef()
+	const meshRef = useRef();
+	const gltfRef = useRef();
 	const tProgress = useRef({ value: 0 });
 	const { scene } = useGLTF('/models/earth.glb');
 
 
-	scene.traverse((child) => {
-		if(child.isMesh)
-		{
-			child.castShadow = true;
-			// child.receiveShadow = true;
-		}
-	})
 
-
-	// const [
-	// 	baseColor,
-	// 	aoMap,
-	// 	normalMap,
-	// 	roughnessMap,
-	// 	metalnessMap,
-	// 	heightMap
-	// ] = useTexture([
-	// 	"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
-	// 	"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
-	// 	"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
-	// 	"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
-	// 	"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
-	// 	"/textures/metal_scrached/Metal_scratched_009_height.png",
-	// ]);
 
 
 	const [
@@ -375,17 +393,34 @@ export default function MovingSphere({...props}) {
 		normalMap,
 		roughnessMap,
 		metalnessMap,
-		heightMap,
-		specularMap
+		heightMap
 	] = useTexture([
-		"/textures/Rock_Ore/Rock_Ore_001_COLOR.jpg",
-		"/textures/Rock_Ore/Rock_Ore_001_OCC.jpg",
-		"/textures/Rock_Ore/Rock_Ore_001_NORM.jpg",
-		"/textures/Rock_Ore/Rock_Ore_001_ROUGH.jpg",
-		"/textures/Rock_Ore/Rock_Ore_001_METAL.jpg",
-		"/textures/Rock_Ore/Rock_Ore_001_DISP.png",
-		"/textures/Rock_Ore/Rock_Ore_001_SPEC.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
+		"/textures/metal_scrached/Metal_scratched_009_height.png",
 	]);
+
+
+	// const [
+	// 	baseColor,
+	// 	aoMap,
+	// 	normalMap,
+	// 	roughnessMap,
+	// 	metalnessMap,
+	// 	heightMap,
+	// 	specularMap
+	// ] = useTexture([
+	// 	"/textures/Rock_Ore/Rock_Ore_001_COLOR.jpg",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_OCC.jpg",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_NORM.jpg",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_ROUGH.jpg",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_METAL.jpg",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_DISP.png",
+	// 	"/textures/Rock_Ore/Rock_Ore_001_SPEC.jpg",
+	// ]);
 
 
 	const repeatX = 2;
@@ -398,7 +433,7 @@ export default function MovingSphere({...props}) {
 		roughnessMap,
 		metalnessMap,
 		heightMap,
-		specularMap
+		// specularMap
 	].forEach(tex => {
 		tex.wrapS = THREE.RepeatWrapping;
 		tex.wrapT = THREE.RepeatWrapping;
@@ -406,9 +441,24 @@ export default function MovingSphere({...props}) {
 	});
 
 	// Required for aoMap & heightMap
-	baseColor.wrapS = baseColor.wrapT = THREE.RepeatWrapping;
-	aoMap.wrapS = aoMap.wrapT = THREE.RepeatWrapping;
-	heightMap.wrapS = heightMap.wrapT = THREE.RepeatWrapping;
+	// baseColor.wrapS = baseColor.wrapT = THREE.RepeatWrapping;
+	// aoMap.wrapS = aoMap.wrapT = THREE.RepeatWrapping;
+	// heightMap.wrapS = heightMap.wrapT = THREE.RepeatWrapping;
+
+	const metalMaterial = useMemo( () => {
+		return new THREE.MeshPhysicalMaterial({
+			map : baseColor,
+			aoMap : aoMap,
+			normalMap : normalMap,
+			roughnessMap : roughnessMap,
+			metalnessMap : metalnessMap,
+			displacementMap : heightMap,
+			// specularMap : specularMap,
+			displacementScale : 0.05
+		})},
+		[]
+	)
+
 
 
 
@@ -429,30 +479,74 @@ export default function MovingSphere({...props}) {
 				new THREE.Vector3(0.0, 2.0,  0.0),
 				new THREE.Vector3(0.0, 3.0,  0.0),
 				new THREE.Vector3(0.0, 30.0, 0.0),
-				new THREE.Vector3(0.0, 30.0, 0.0),
-				new THREE.Vector3(0.0, 30.0, 0.0),
-				new THREE.Vector3(0.0, 30.0, 0.0),
-				new THREE.Vector3(0.0, 30.0, 0.0),
+				// new THREE.Vector3(0.0, 30.0, 0.0),
+				// new THREE.Vector3(0.0, 30.0, 0.0),
+				// new THREE.Vector3(0.0, 30.0, 0.0),
+				// new THREE.Vector3(0.0, 30.0, 0.0),
 			]),
 		[]
 	)
 
+	
+	useEffect(() => {
+		scene.traverse((child) => {
+			if (child.isMesh) {
+				// child.material = metalMaterial;
+				child.castShadow = true;
+			}
+		});
+	}, [scene, metalMaterial]);
+
 	useEffect(() => {
 		mainTimeline.to(tProgress.current, {
 			value: 1,
-			duration: 15,
-			ease: "power2.inOut",
+			duration: 12,
+			ease: "power3.inOut",
 		}, "intro");
 	}, [])
 
 	useFrame(() => {
 		const t = tProgress.current.value;
 		
-		if (!meshRef.current) return;
+		if (!meshRef.current || t >= 1) return;
 
 		const pos = curve.getPoint(t)
 		meshRef.current.position.lerp(pos, 0.1);
 	})
+
+
+	// pulse effect with changing animation
+	useEffect(() => {
+		if (!scene) return;
+
+		mainTimeline.call(
+			() => {
+				console.log("TEXT END PULSE TRIGGERED");
+				scene.traverse((child) => {
+					if (child.isMesh) {
+						child.material = metalMaterial;
+						child.castShadow = true;
+					}
+				});
+
+				// Scale pulse
+				gsap.fromTo(
+					gltfRef.current.scale,
+					{ x: 1, y: 1, z: 1 },
+					{
+						x: 1.1,
+						y: 1.1,
+						z: 1.1,
+						duration: 0.25,
+						yoyo: true,
+						ease: "power2.inOut",
+					}
+				);
+			},
+			null,
+			"textEnd"
+		);
+	}, []);
 
 	return (
 		<group ref={meshRef} position={[0.0, 2.0, 0.0]} {...props} >
@@ -470,7 +564,7 @@ export default function MovingSphere({...props}) {
 					displacementScale={0.05}
 				/>
 			</mesh> */}
-			<primitive object={scene} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow />
+			<primitive ref={gltfRef} object={scene} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow />
 			<Title />
 		</group>
 	)
