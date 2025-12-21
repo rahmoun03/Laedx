@@ -62,7 +62,7 @@ export default function CameraController() {
 	const smoothedLook = new THREE.Vector3();
 
 	useEffect(() => {
-		camera.fov = 95;
+		camera.fov = size.width > 680 ? 75 : 95;
 		camera.near = 0.1;
 		camera.far = 1000;
 		camera.position.copy(curve.getPoint(0));

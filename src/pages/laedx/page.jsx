@@ -49,6 +49,7 @@ function App() {
                 }}
                 className="absolute inset-0 w-full h-full no-scrollbar"
                 shadows
+                style={{ touchAction: "none" }}
             >
                 <Suspense fallback={null}>
                     <Preload all={true} />

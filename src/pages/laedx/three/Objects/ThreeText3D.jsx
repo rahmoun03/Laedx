@@ -1,9 +1,16 @@
 import * as THREE from 'three';
-import React, { useRef, useEffect, useMemo, useLayoutEffect } from 'react';
+import React, {
+	useRef,
+	useMemo,
+	useLayoutEffect,
+	useImperativeHandle,
+	forwardRef
+} from 'react';
 import { Text3D, useTexture, Center } from '@react-three/drei';
-// import { useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import { mainTimeline } from '@/hooks/animationTimeline';
+import { RigidBody } from '@react-three/rapier';
 
 
 function ThreeText3D({
@@ -17,12 +24,31 @@ function ThreeText3D({
 	endRot = [],
 	duration = 3,
 	stagger = 0.08,
-	curveIntensity = 1.5 // Controls curve smoothness
-
+	curveIntensity = 1.5, // Controls curve smoothness
 }) {
 	const groupRef = useRef();
-	
 	const curvesRef = useRef([]);
+
+	
+	
+	// const [physicsEnabled, setPhysicsEnabled] = React.useState(false);
+	// const charRigidRefs = useRef([]);
+	// const floatingEnabledRef = useRef(false)
+
+
+	// Expose API to parent
+	// useImperativeHandle(ref, () => ({
+	// 	enableFloating() {
+	// 		floatingEnabledRef.current = true
+
+	// 		charRigidRefs.current.forEach(body => {
+	// 			if (!body) return
+	// 			body.wakeUp()
+	// 			body.setEnabledTranslations(true, true)
+	// 			body.setEnabledRotations(true, true)
+	// 		})
+	// 	}
+	// }))
 
 
 	// geometry config
@@ -35,7 +61,7 @@ function ThreeText3D({
 		bevelSize: 0.02,
 		bevelOffset: 0,
 		bevelSegments: 2,
-	}), []);
+	}), [size]);
 
     // Generate CatmullRomCurve3 for each character
     useLayoutEffect(() => {
@@ -73,54 +99,52 @@ function ThreeText3D({
             return curve;
         });
 
-        groupRef.current.children.forEach((charMesh, i) => {
-            const sRot = startRot[i] || new THREE.Euler();
-            const eRot = endRot[i] || new THREE.Euler();
-            const curve = curvesRef.current[i];
+		groupRef.current.children.forEach((charMesh, i) => {
+			const sRot = startRot[i] || new THREE.Euler();
+			const eRot = endRot[i] || new THREE.Euler();
+			const curve = curvesRef.current[i];
 
-            // Set initial position & rotation
-            charMesh.position.copy(startPos[i] || new THREE.Vector3());
-            charMesh.rotation.set(sRot.x, sRot.y, sRot.z);
+			charMesh.position.copy(startPos[i]);
+			charMesh.rotation.set(sRot.x, sRot.y, sRot.z);
 
-            const staggerDelay = i * stagger;
+			const staggerDelay = i * stagger;
+			const isLastChar = i === groupRef.current.children.length - 1;
 
-            // Animate along curve using GSAP
-            const progressObj = { t: 0 };
-            mainTimeline.to(
-                progressObj,
-                {
-                    t: 1,
-                    duration,
-                    ease: "expo.inOut",
-                    onUpdate() {
-                        // Get point on curve based on progress
-                        const point = curve.getPoint(progressObj.t);
-                        charMesh.position.copy(point);
-                    }
-                },
-                `intro+=${staggerDelay}`
-            );
+			const progressObj = { t: 0 };
 
-            // Animate rotation
-            mainTimeline.to(
-                charMesh.rotation,
-                {
-                    x: eRot.x,
-                    y: eRot.y,
-                    z: eRot.z,
-                    duration : duration,
-                    ease: "expo.inOut"
-                },
-                `intro+=${staggerDelay}`
-            );
-        });
+			mainTimeline.to(
+				progressObj,
+				{
+					t: 1,
+					duration,
+					ease: "expo.inOut",
+					onUpdate() {
+						charMesh.position.copy(curve.getPoint(progressObj.t));
+					},
+					// onComplete() {
+					// 	if (isLastChar) {
+					// 		setPhysicsEnabled(true); // 🔥 RELEASE TEXT
+					// 	}
+					// }
+				},
+				`intro+=${3 + staggerDelay}`
+			);
+
+			mainTimeline.to(
+				charMesh.rotation,
+				{
+					x: eRot.x,
+					y: eRot.y,
+					z: eRot.z,
+					duration,
+					ease: "expo.inOut"
+				},
+				`intro+=${3 + staggerDelay}`
+			);
+		});
+
 
     }, [startPos, endPos, startRot, endRot, duration, stagger, curveIntensity]);
-
-
-
-
-
 
 
 	return (
@@ -130,15 +154,24 @@ function ThreeText3D({
 					position={[startPos[i].x, startPos[i].y, startPos[i].z]}
 					rotation={[startRot[i].x, startRot[i].y, startRot[i].z]}
 					key={i}
-				>
-					<Text3D
-						font={fontUrl}
-						{...config}
-						castShadow
+				>	
+					<RigidBody
+						colliders="hull"
+						restitution={0.8}
+						friction={0.6}
+						angularDamping={0.8}
+						linearDamping={0.8}
+						gravityScale={0.2}
 					>
-						{char}
-						<meshPhysicalMaterial color={'white'} metalness={0.8} roughness={0.2} />
-					</Text3D>
+						<Text3D
+							font={fontUrl}
+							{...config}
+							castShadow
+							>
+							{char}
+							<meshPhysicalMaterial color={'white'} metalness={0.8} roughness={0.2} transparent={true} opacity={1}/>
+						</Text3D>
+					</RigidBody>
 				</Center>
 			))}
 		</group>
