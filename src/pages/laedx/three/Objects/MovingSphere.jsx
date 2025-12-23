@@ -6,73 +6,40 @@ import gsap from "gsap";
 
 import Title from './Title';
 import { mainTimeline } from "@/hooks/animationTimeline";
-import { randInt } from "three/src/math/MathUtils.js";
+import { useProgressStore } from "@/hooks/useProgressStore";
+
 
 export default function MovingSphere({...props}) {
 	const meshRef = useRef();
 	const gltfRef = useRef();
 	const tProgress = useRef({ value: 0 });
-	const { scene } = useGLTF('/models/destroyeds2_original.glb');
+	const { scene } = useGLTF('/models/done2.glb');
 	const originalMaterials = useRef(new Map())
+	const { progressLeftRef } = useProgressStore();
 	const explosionData = useRef([])
-
+	const cover = useRef();
 
 	const isDraggable = useRef(false)
 	const isDragging = useRef(false)
 	const activePointerId = useRef(null)
 
+	// const supernovaLight = useRef()
+
+
 
 	const origin = useRef(new THREE.Vector3(0, 30, 0))
 	const dragOffset = useRef(new THREE.Vector3())
 	const plane = useRef(new THREE.Plane())
-	const raycaster = new THREE.Raycaster()
-	const mouse = new THREE.Vector2()
-
-
-
-	const [
-		baseColor,
-		aoMap,
-		normalMap,
-		roughnessMap,
-		metalnessMap,
-		heightMap
-	] = useTexture([
-		"/textures/metal_scrached/Metal_scratched_009_basecolor.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_ambientOcclusion.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_normal.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_roughness.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_metallic.jpg",
-		"/textures/metal_scrached/Metal_scratched_009_height.png",
-	]);
-
-
-	const repeatX = 2;
-	const repeatY = 2;
-
-	[
-		baseColor,
-		aoMap,
-		normalMap,
-		roughnessMap,
-		metalnessMap,
-		heightMap,
-		// specularMap
-	].forEach(tex => {
-		tex.wrapS = THREE.RepeatWrapping;
-		tex.wrapT = THREE.RepeatWrapping;
-		tex.repeat.set(repeatX, repeatY);
-	});
+	const raycaster = useRef(new THREE.Raycaster())
+	const mouse = useRef(new THREE.Vector2())
 
 	const metalMaterial = useMemo( () => {
 		return new THREE.MeshPhysicalMaterial({
-			map : baseColor,
-			aoMap : aoMap,
-			normalMap : normalMap,
-			roughnessMap : roughnessMap,
-			metalnessMap : metalnessMap,
-			displacementMap : heightMap,
-			displacementScale : 0.05
+			transparent: true,
+			color: 'white',	
+			metalness: 0.1,
+			roughness: 0.3,
+			opacity: 1
 		})},
 		[]
 	)
@@ -111,59 +78,38 @@ export default function MovingSphere({...props}) {
 
 		scene.traverse((child) => {
 			
-			// if(child.name === "Icosphere001") 
-			// 	child.visible = false;
+			if(child.name === "Icosphere453") 
+			{
+				cover.current = child;
+			}
 
-			if (child.isMesh) {
-
-				// Handle multi-material meshes safely
-				if (Array.isArray(child.material)) {
+			if(child.isMesh) {
+			// Store original material(s) ONCE
+				if (!originalMaterials.current.has(child.uuid)) {
 					originalMaterials.current.set(
 						child.uuid,
-						child.material.map((m) => m.clone())
+						Array.isArray(child.material)
+						? child.material
+						: child.material
 					)
-				} else {
-					originalMaterials.current.set(child.uuid, child.material.clone())
 				}
 
-				// child.material = metalMaterial;
-				child.castShadow = true
+				// Apply new material
+				child.material = metalMaterial
+				child.material.needsUpdate = true
 			}
-			const origin = child.position.clone()
 
+			const origin = child.position.clone()
 			// 🔥 Radial direction (away from center)
 			const direction = origin.clone().sub(center).normalize()
-
 			explosionData.current.push({
 				mesh: child,
 				origin,
-				direction
+				direction,
+				random: THREE.MathUtils.randFloat(0.6, 1.2),
 			})
 		})
 	}, [scene])
-
-	// useEffect(() => {
-	// 	if (!scene) return
-
-	// 	explosionData.current = []
-
-	// 	scene.traverse((child) => {
-	// 		if (!child.isMesh) return
-
-	// 		const originPos = child.position.clone()
-
-	// 		// Normal direction (local → world safe)
-	// 		const normal = new THREE.Vector3()
-	// 		child.getWorldDirection(normal)
-	// 		normal.normalize()
-
-	// 		explosionData.current.push({
-	// 			mesh: child,
-	// 			origin: originPos,
-	// 			normal
-	// 		})
-	// 	})
-	// }, [scene])
 
 
 	useEffect(() => {
@@ -185,13 +131,15 @@ export default function MovingSphere({...props}) {
 
 		const pos = curve.getPoint(t)
 		meshRef.current.position.lerp(pos, 0.1);
+		// meshRef.current.position.copy(pos)
+
 	})
 
 
 	const onPointerDown = (e) => {
 		if (!isDraggable.current) return
 		if (activePointerId.current !== null) return // block multitouch
-
+		document.body.style.cursor = "grabbing"
 
 		e.stopPropagation()
 		e.target.setPointerCapture(e.pointerId)
@@ -207,9 +155,9 @@ export default function MovingSphere({...props}) {
 		)
 
 		// Compute offset
-		raycaster.setFromCamera(e.pointer, e.camera)
+		raycaster.current.setFromCamera(e.pointer, e.camera)
 		const hit = new THREE.Vector3()
-		raycaster.ray.intersectPlane(plane.current, hit)
+		raycaster.current.ray.intersectPlane(plane.current, hit)
 		dragOffset.current.copy(hit).sub(meshRef.current.position)
 	}
 
@@ -217,9 +165,9 @@ export default function MovingSphere({...props}) {
 		if (!isDragging.current) return
 		if (e.pointerId !== activePointerId.current) return
 
-		raycaster.setFromCamera(e.pointer, e.camera)
+		raycaster.current.setFromCamera(e.pointer, e.camera)
 		const hit = new THREE.Vector3()
-		raycaster.ray.intersectPlane(plane.current, hit)
+		raycaster.current.ray.intersectPlane(plane.current, hit)
 
 		meshRef.current.position.lerp(
 			hit.sub(dragOffset.current),
@@ -231,6 +179,7 @@ export default function MovingSphere({...props}) {
 		if (!isDragging.current) return
 		isDragging.current = false;
 		activePointerId.current = null
+  		document.body.style.cursor = "grab"
 
 
 		// Bounce back
@@ -253,11 +202,7 @@ export default function MovingSphere({...props}) {
 	const onPointerCancel = releaseDrag
 	const onPointerLeave = releaseDrag
 
-	useEffect(() => {
-		if (!isDragging.current) return
-		document.body.style.cursor = "grabbing"
-		return () => (document.body.style.cursor = "grab")
-	}, [])
+
 
 	const implode = () => {
 		explosionData.current.forEach(({ mesh, origin }) => {
@@ -271,53 +216,137 @@ export default function MovingSphere({...props}) {
 		})
 	}
 
+	
+	// const updateSupernovaLight = () => {
+	// 	if (!supernovaLight.current) return
+
+	// 	const t = getExplosionFactor()
+
+	// 	// ✨ shape the explosion curve
+	// 	const intensityCurve = THREE.MathUtils.smootherstep(t, 0, 1)
+
+	// 	// 💥 SUPER BRIGHT at peak
+	// 	supernovaLight.current.intensity = intensityCurve * 120
+
+	// 	// 🌊 Shockwave radius expansion
+	// 	supernovaLight.current.distance = intensityCurve * 45
+
+	// 	// 🌈 Color shift (white → blue)
+	// 	supernovaLight.current.color.lerpColors(
+	// 		new THREE.Color("#ffffff"),
+	// 		new THREE.Color("#4df3ff"),
+	// 		t
+	// 	)
+
+	// 	const flashFactor = t > 0.5 ? (1 - t / 0.15) : 0
+	// 	supernovaLight.current.intensity += flashFactor * 200
+	// }
+
+
+
+	// explossion implementation
+	const getExplosionFactor = () => {
+		const t = THREE.MathUtils.clamp(progressLeftRef.current / 100, 0, 1)
+		return THREE.MathUtils.smootherstep(t, 0, 1)
+	}
+	const updateExplosionFromProgress = () => {
+		const t = getExplosionFactor()
+
+		console.log('explossion progress : ', t);
+		if(t >= 0.003 && cover.current?.visible)
+			cover.current.visible = false
+		else if(t < 0.003 && cover.current)
+			cover.current.visible = true;
+		
+
+		// control max explosion distance
+		const maxStrength = 6.0
+
+		explosionData.current.forEach(({ mesh, origin, direction, random }) => {
+			mesh.position.set(
+				origin.x + direction.x * maxStrength * t * random,
+				origin.y + direction.y * maxStrength * t * random,
+				origin.z + direction.z * maxStrength * t * random
+			)
+		})
+	}
+	useFrame(() => {
+		if (!explosionData.current.length) return
+
+		updateExplosionFromProgress()
+	
+		const t = THREE.MathUtils.clamp(progressLeftRef.current / 100, 0, 1)
+	
+		const start = 0.8
+
+		const tRemap = THREE.MathUtils.clamp(
+			(t - start) / (1 - start),
+			0,
+			1
+		)
+
+		const eased = THREE.MathUtils.smootherstep(tRemap, 0, 1)
+
+
+
+		// use eased everywhere
+		supernovaMaterial.uniforms.uProgress.value = eased
+		meshRef.current.scale.setScalar(1 + eased * 7)
+
+		// color shift white → blue
+		supernovaMaterial.uniforms.uColor.value.lerpColors(
+			new THREE.Color("#ffffff"),
+			new THREE.Color("#4df3ff"),
+			tRemap
+		)
+
+		flashMaterial.uniforms.uFlash.value = Math.pow(eased, 3) * 6;
+	})
+
 
 
 	const explode = () => {
 		const strength = THREE.MathUtils.randFloat(3.5, 5.5)
+		console.log(']====> EXpolosion : ', strength);
 
-		explosionData.current.forEach(({ mesh, origin, direction }) => {
+		explosionData.current.forEach(({ mesh, origin, direction, random }) => {
 			gsap.to(mesh.position, {
-				x: origin.x + direction.x * strength,
-				y: origin.y + direction.y * strength,
-				z: origin.z + direction.z * strength,
+				x: origin.x + direction.x * strength * random,
+				y: origin.y + direction.y * strength * random,
+				z: origin.z + direction.z * strength * random,
 				duration: 8.2,
 				ease: "power3.inOut",
 				delay: Math.random() * 0.2,
-				// onComplete: () => {
-				// 	implode();
-				// }
 			})
 		})
 	}
 
 
+	const restoreOriginalMaterials = () => {
+		scene.traverse((child) => {
+			if (!child.isMesh) return
+
+			const original = originalMaterials.current.get(child.uuid)
+			if (!original) return
+
+			child.material = original
+			child.material.needsUpdate = true
+		})
+	}
+
 
 	// pulse effect with changing animation
 	useEffect(() => {
-		if (!scene) return;
+		if (!scene || !gltfRef.current) return;
 
 		mainTimeline.call(
 			() => {
-
+				restoreOriginalMaterials();
 				const tl = gsap.timeline({
-					onStart: () => {
-						// RESTORE ORIGINAL MATERIALS WHEN PULSE STARTS
-						scene.traverse((child) => {
-							if (!child.isMesh) return
-
-							const original = originalMaterials.current.get(child.uuid)
-							if (!original) return
-
-							child.material = Array.isArray(original)
-								? original.map((m) => m.clone())
-								: original.clone()
-
-							child.material.needsUpdate = true
-						})
-					},
 					onComplete: () => {
-						explode();
+						console.log("Ready for swipe");
+						
+						// explode();
 					}
 				});
 				console.log("TEXT END PULSE TRIGGERED");
@@ -352,6 +381,70 @@ export default function MovingSphere({...props}) {
 		);
 	}, []);
 
+
+
+	const supernovaMaterial = useMemo(() => {
+		return new THREE.ShaderMaterial({
+			transparent: true,
+			blending: THREE.AdditiveBlending,
+			depthWrite: false,
+			toneMapped: false,
+			uniforms: {
+			uProgress: { value: 0 },
+			uIntensity: { value: 6 },
+			uColor: { value: new THREE.Color("#ffffff") },
+			},
+			vertexShader: `
+			varying vec3 vNormal;
+			void main() {
+				vNormal = normalize(normalMatrix * normal);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+			`,
+			fragmentShader: `
+			varying vec3 vNormal;
+			uniform float uProgress;
+			uniform float uIntensity;
+			uniform vec3 uColor;
+
+			void main() {
+				float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+				float flash = smoothstep(0.0, 0.15, uProgress)
+							* (1.0 - smoothstep(0.15, 0.4, uProgress));
+
+				float energy = (fresnel + flash * 3.0) * uIntensity;
+				gl_FragColor = vec4(uColor * energy, energy);
+			}
+			`
+		})
+	}, [])
+
+	const flashMaterial = useMemo(() => {
+		return new THREE.ShaderMaterial({
+			transparent: true,
+			depthWrite: false,
+			depthTest: false,
+			blending: THREE.AdditiveBlending,
+			toneMapped: false,
+			uniforms: {
+			uFlash: { value: 0 },
+			},
+			vertexShader: `
+			void main() {
+				gl_Position = vec4(position.xy, 0.0, 1.0);
+			}
+			`,
+			fragmentShader: `
+			uniform float uFlash;
+			void main() {
+				gl_FragColor = vec4(vec3(1.0), uFlash);
+			}
+			`,
+		})
+	}, [])
+
+
+
 	return (
 		<group
 			ref={meshRef}
@@ -364,18 +457,33 @@ export default function MovingSphere({...props}) {
 			onPointerLeave={onPointerLeave}
 		>
 			{/* <mesh>
-				<sphereGeometry args={[0.5, 128, 128]} />
-				<meshPhongMaterial
-					map={baseColor}
-					aoMap={aoMap}
-					normalMap={normalMap}
-					roughnessMap={roughnessMap}
-					metalnessMap={metalnessMap}
-					displacementMap={heightMap}
-					specularMap={specularMap}
-					displacementScale={0.05}
+				<sphereGeometry args={[0.1, 32, 32]} />
+				<meshPhysicalMaterial
+					color='white'
+					emissive={new THREE.Color('#00e5ff')}
+					emissiveIntensity={10.0}
+					toneMapped={false}
 				/>
 			</mesh> */}
+			<mesh scale={1}>
+				<sphereGeometry args={[0.1, 64, 64]} />
+				<primitive object={supernovaMaterial} />
+			</mesh>
+
+			<mesh renderOrder={9999}>
+				<planeGeometry args={[2, 2]} />
+				<primitive object={flashMaterial} />
+			</mesh>
+
+			{/* <pointLight
+				ref={supernovaLight}
+				position={[0, 0, 0]}
+				intensity={0}
+				distance={0}
+				decay={2}
+				color={"#ffffff"}
+			/> */}
+
 			<primitive ref={gltfRef} object={scene} scale={[1.2, 1.2, 1.2]} rotation={[0.2, -1, 0]} castShadow receiveShadow />
 			<Title />
 		</group>

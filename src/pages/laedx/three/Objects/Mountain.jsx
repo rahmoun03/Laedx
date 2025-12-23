@@ -4,6 +4,9 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from "@react-three/drei";
 
 
+// import { mainTimeline } from "@/hooks/animationTimeline";
+
+
 function Mountain({
     url,
     scale = 1,
@@ -19,7 +22,6 @@ function Mountain({
     gltf.scene.traverse((obj, index) => {
         if (obj.isMesh) {
             console.log('moutain ' + index, obj);
-            // obj.castShadow = true
             obj.receiveShadow = true
         }
     })
@@ -27,7 +29,7 @@ function Mountain({
     useFrame(({ camera }) => {
         group.current.children.forEach((child) => {
             const dist = camera.position.distanceTo(child.position)
-            child.visible = dist < 100 // hide if further than 100 units
+            child.visible = dist < 25 // hide if further than 100 units
         })
     })
 

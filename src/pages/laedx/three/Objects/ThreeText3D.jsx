@@ -163,13 +163,13 @@ function ThreeText3D({
 						linearDamping={0.8}
 						gravityScale={0.2}
 					>
-						<Text3D
+						<Text3D	
 							font={fontUrl}
 							{...config}
 							castShadow
 							>
 							{char}
-							<meshPhysicalMaterial color={'white'} metalness={0.8} roughness={0.2} transparent={true} opacity={1}/>
+							<meshPhysicalMaterial color={'white'} metalness={0.1} roughness={0.3} transparent={true} opacity={1}/>
 						</Text3D>
 					</RigidBody>
 				</Center>

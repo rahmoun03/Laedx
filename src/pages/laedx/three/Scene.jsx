@@ -9,15 +9,16 @@ import { Physics } from '@react-three/rapier';
 
 import Lights from "./Lights";
 import Effects from "./Effects";
-import DynamicDOF from "./DynamicDOF";
+// import DynamicDOF from "./DynamicDOF";
 import CameraController from "./Camera";
 import Mountain from "./Objects/Mountain";
 import MovingSphere from "./Objects/MovingSphere";
 import BackgroundAudio from "@/components/three/BackgroundAudio";
 import Astronaut from "./Objects/Astronaut";
 import Flag from './Objects/Flag';
-import ThreeText3D from './Objects/ThreeText3D';
-import RockPlanet from './Objects/RockPlanet';
+// import ThreeText3D from './Objects/ThreeText3D';
+// import RockPlanet from './Objects/RockPlanet';
+import Bee from './Objects/Bee';
 // import RockPath from './Objects/RockPath';
 import Glisa from './Objects/Glisa';
 import { mainTimeline } from "../../../hooks/animationTimeline";
@@ -66,7 +67,7 @@ function Scene() {
 			<Physics gravity={[0, 0, 0]}>
 				<CameraController />
 				<Lights />
-				{/* <Effects /> */}
+				<Effects />
 				{/* <DynamicDOF /> */}
 				<Flag 
 					position={[-1, 0, -6]}
@@ -91,7 +92,8 @@ function Scene() {
 						{...props}
 					/>
 				))}
-				{/* <PlaneG /> */}
+
+				<Bee scale={[0.02, 0.02, 0.02]} position={[0, 0, -3]}/>
 
 				<MovingSphere />
 				{/* <RockPlanet /> */}

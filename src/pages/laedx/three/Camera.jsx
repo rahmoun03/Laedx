@@ -25,13 +25,13 @@ export default function CameraController() {
 		new THREE.Vector3(0.0, 1.0, 7.8),
 		new THREE.Vector3(0.0, 1.0, 7.4),
 		new THREE.Vector3(0.0, 1.0, 6.0),
-		new THREE.Vector3(0.0, 1.0, 2.0),
-		new THREE.Vector3(0.0, 1.0, 2.0),
-		new THREE.Vector3(0.0, 1.0, 2.0),
-		new THREE.Vector3(0.0, 1.0, 2.0),
-		new THREE.Vector3(0.0, 1.0, 2.0),
-		new THREE.Vector3(0.0, 3.0, 2.0),
-		new THREE.Vector3(0.0, 30.0, 2.0),
+		new THREE.Vector3(0.0, 1.0, 3.0),
+		new THREE.Vector3(0.0, 1.0, 3.0),
+		new THREE.Vector3(0.0, 1.0, 3.0),
+		new THREE.Vector3(0.0, 1.0, 3.0),
+		new THREE.Vector3(0.0, 1.0, 3.0),
+		new THREE.Vector3(0.0, 3.0, 3.0),
+		new THREE.Vector3(0.0, 30.0, 3.0),
 		// new THREE.Vector3(0.0, 30.0, 2.0),
 		// new THREE.Vector3(0.0, 30.0, 2.0),
 		// new THREE.Vector3(0.0, 30.0, 2.0),
@@ -62,7 +62,7 @@ export default function CameraController() {
 	const smoothedLook = new THREE.Vector3();
 
 	useEffect(() => {
-		camera.fov = size.width > 680 ? 75 : 95;
+		camera.fov = size.width > 680 ? 55 : 75;
 		camera.near = 0.1;
 		camera.far = 1000;
 		camera.position.copy(curve.getPoint(0));
@@ -95,10 +95,13 @@ export default function CameraController() {
 		// Move Camera
 		const camPos = curve.getPoint(t);
 		camera.position.lerp(camPos, 0.1);
+		// camera.position.copy(camPos);
+
 
 		// Smooth Look At
 		const target = lookAtCurve.getPoint(t);
 		smoothedLook.lerp(target, 0.1);
+		// smoothedLook.copy(target);
 
 
 		// ======== CAMERA SHAKE ==========

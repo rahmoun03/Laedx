@@ -199,27 +199,27 @@ export default function Title() {
 
     console.log('title called !')
 
-    // const { scene } = useGLTF("/models/OpX.glb");
+    const { scene } = useGLTF("/models/OpX.glb");
     const titleRef = useRef();
     const { camera } = useThree();
     const shakeTlRef = useRef();
 
 
 
-    // useEffect(() => {
-    // 	console.log(scene)
-    // 	scene.traverse((child) => {
-    // 		if(child.isMesh && child.name !== "Orange_part"){
+    useEffect(() => {
+    	console.log(scene)
+    	scene.traverse((child) => {
+    		if(child.isMesh && child.name !== "Orange_part"){
                 
-    // 			console.log({child})
-    // 			child.material.visible = false;
-    // 		}
-    // 		else
-    // 		{
-    // 			child.material = new THREE.MeshStandardMaterial({color : "#ff5500", emissive : "#ff5500", side : THREE.FrontSide, transparent : true, opacity: 0.9})
-    // 		}
-    // 	})
-    // }, [scene])
+    			console.log({child})
+    			child.material.visible = false;
+    		}
+    		else
+    		{
+    			child.material = new THREE.MeshStandardMaterial({color : "#ff5500", emissive : "#ff5500", side : THREE.FrontSide, transparent : true, opacity: 0})
+    		}
+    	})
+    }, [scene])
 
 
     const shakeCamera = () => {
@@ -262,8 +262,47 @@ export default function Title() {
             });
 
             titleRef.current.traverse((mesh) => {
-                if (!mesh.isMesh || !mesh.material?.color) return;
+                if (!mesh.isMesh || !mesh.material?.color ) return;
 
+
+                if (mesh.name === "Orange_part" ){
+
+                    tl.to(
+                        mesh.material,
+                        {
+                            opacity: 1,
+                            duration: 0.35,
+                            ease: "power2.inOut",
+                        },
+                        0
+                    );
+                    
+                    // // SCALE pulse
+                    // tl.fromTo(mesh.scale,
+                    //     { x: 1, y: 1, z: 1 },
+                    //     {
+                    //         x: 1.05,
+                    //         y: 1.05,
+                    //         z: 1.05,
+                    //         duration: 0.25,
+                    //         yoyo: true,
+                    //         repeat: 1,
+                    //         ease: "power2.inOut"
+                    //     },
+                    //     0
+                    // );
+
+                    tl.to(
+                        mesh.material,
+                        {
+                            opacity: 0,
+                            duration: 2.0,
+                            ease: "power2.inOut",
+                        },
+                        ">+=0.5" // after pulse
+                    );
+                    return;   
+                }
                 const pulseColor = new THREE.Color(0.3, 0.3, 1.3);
 
                 // COLOR pulse
@@ -283,9 +322,9 @@ export default function Title() {
                 tl.fromTo(mesh.scale,
                     { x: 1, y: 1, z: 1 },
                     {
-                        x: 1.15,
-                        y: 1.15,
-                        z: 1.15,
+                        x: 1.02,
+                        y: 1.02,
+                        z: 1.02,
                         duration: 0.25,
                         yoyo: true,
                         repeat: 1,
@@ -322,6 +361,8 @@ export default function Title() {
                 duration={9}
                 stagger={0.05}
             />
+
+            <primitive object={scene} scale={[0.27, 0.27, 0.5]} position={[0.789, -0.948, 0.01]} />
 
             <ThreeText3D
                 text="DIGITALSTUDIO"

@@ -7,9 +7,9 @@ export default function Effects(){
 			{/* Bloom */}
 			<EffectComposer>
 				<Bloom
-					luminanceThreshold={0.2}
-					luminanceSmoothing={0.9}
-					intensity={2.0}
+					// luminanceThreshold={.1}
+					// luminanceSmoothing={.1}
+					intensity={1.0}
 				/>
 
 				{/* <DepthOfField

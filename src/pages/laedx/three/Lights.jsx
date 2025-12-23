@@ -52,12 +52,12 @@ function Lights() {
 	return (
 		<>
 			{/* Directional Light */}
-			<directionalLight
+			{/* <directionalLight
 				// color='green'
 				position={[0, 500, 500]}
 				intensity={0.05}
 				castShadow	
-			/>
+			/> */}
 
 			{/* Point Light */}
 			<pointLight position={[0, 10, 3]} intensity={30} castShadow />
