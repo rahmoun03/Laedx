@@ -77,9 +77,10 @@ export default function MovingSphere({...props}) {
 		explosionData.current = []
 
 		scene.traverse((child) => {
-			
 			if(child.name === "Icosphere453") 
 			{
+				
+				console.log('child  ', child);
 				cover.current = child;
 			}
 
@@ -216,32 +217,6 @@ export default function MovingSphere({...props}) {
 		})
 	}
 
-	
-	// const updateSupernovaLight = () => {
-	// 	if (!supernovaLight.current) return
-
-	// 	const t = getExplosionFactor()
-
-	// 	// ✨ shape the explosion curve
-	// 	const intensityCurve = THREE.MathUtils.smootherstep(t, 0, 1)
-
-	// 	// 💥 SUPER BRIGHT at peak
-	// 	supernovaLight.current.intensity = intensityCurve * 120
-
-	// 	// 🌊 Shockwave radius expansion
-	// 	supernovaLight.current.distance = intensityCurve * 45
-
-	// 	// 🌈 Color shift (white → blue)
-	// 	supernovaLight.current.color.lerpColors(
-	// 		new THREE.Color("#ffffff"),
-	// 		new THREE.Color("#4df3ff"),
-	// 		t
-	// 	)
-
-	// 	const flashFactor = t > 0.5 ? (1 - t / 0.15) : 0
-	// 	supernovaLight.current.intensity += flashFactor * 200
-	// }
-
 
 
 	// explossion implementation
@@ -252,7 +227,7 @@ export default function MovingSphere({...props}) {
 	const updateExplosionFromProgress = () => {
 		const t = getExplosionFactor()
 
-		console.log('explossion progress : ', t);
+		// console.log('explossion progress : ', t);
 		if(t >= 0.003 && cover.current?.visible)
 			cover.current.visible = false
 		else if(t < 0.003 && cover.current)
@@ -264,9 +239,9 @@ export default function MovingSphere({...props}) {
 
 		explosionData.current.forEach(({ mesh, origin, direction, random }) => {
 			mesh.position.set(
-				origin.x + direction.x * maxStrength * t * random,
-				origin.y + direction.y * maxStrength * t * random,
-				origin.z + direction.z * maxStrength * t * random
+				origin.x + direction.x * maxStrength * t ,
+				origin.y + direction.y * maxStrength * t ,
+				origin.z + direction.z * maxStrength * t 
 			)
 		})
 	}
@@ -450,11 +425,11 @@ export default function MovingSphere({...props}) {
 			ref={meshRef}
 			position={[0.0, 2.0, 0.0]}
 			{...props}
-			onPointerDown={onPointerDown}
-			onPointerMove={onPointerMove}
-			onPointerUp={onPointerUp}
-			onPointerCancel={onPointerCancel}
-			onPointerLeave={onPointerLeave}
+			// onPointerDown={onPointerDown}
+			// onPointerMove={onPointerMove}
+			// onPointerUp={onPointerUp}
+			// onPointerCancel={onPointerCancel}
+			// onPointerLeave={onPointerLeave}
 		>
 			{/* <mesh>
 				<sphereGeometry args={[0.1, 32, 32]} />

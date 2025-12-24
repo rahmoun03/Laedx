@@ -18,10 +18,10 @@ import Astronaut from "./Objects/Astronaut";
 import Flag from './Objects/Flag';
 // import ThreeText3D from './Objects/ThreeText3D';
 // import RockPlanet from './Objects/RockPlanet';
-import Bee from './Objects/Bee';
 // import RockPath from './Objects/RockPath';
 import Glisa from './Objects/Glisa';
 import { mainTimeline } from "../../../hooks/animationTimeline";
+import Bees from "./Objects/Bee";
 // import NoveSphere from './Objects/NoveSphere';
 // import HiveSphere from './Objects/HiveSphere';
 
@@ -93,7 +93,7 @@ function Scene() {
 					/>
 				))}
 
-				<Bee scale={[0.02, 0.02, 0.02]} position={[0, 0, -3]}/>
+				<Bees />
 
 				<MovingSphere />
 				{/* <RockPlanet /> */}
