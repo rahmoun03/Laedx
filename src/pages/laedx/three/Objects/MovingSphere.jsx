@@ -7,6 +7,8 @@ import gsap from "gsap";
 import Title from './Title';
 import { mainTimeline } from "@/hooks/animationTimeline";
 import { useProgressStore } from "@/hooks/useProgressStore";
+import RingCylinder from "./RingCylinder";
+import AnimatedCurveLine from "./AnimatedCurveLine";
 
 
 export default function MovingSphere({...props}) {
@@ -18,11 +20,16 @@ export default function MovingSphere({...props}) {
 	const { progressLeftRef } = useProgressStore();
 	const explosionData = useRef([])
 	const cover = useRef();
+	const cylinderLength = 0.015;
+	const sphereRadius = 0.67;
+	const offset = 3;
 
 	const isDraggable = useRef(false)
 	const isDragging = useRef(false)
 	const activePointerId = useRef(null)
-
+	
+	
+	const ringsAndLinesRef = useRef();
 	// const supernovaLight = useRef()
 
 
@@ -68,6 +75,27 @@ export default function MovingSphere({...props}) {
 			]),
 		[]
 	)
+
+	const rings = useRef([
+		{ dir: [-2.5, -0.5, 0.5], label: "Brazil", offset: 3 },
+		{ dir: [-0.4, 0.7, 0.5], label: "Europe", offset: 2 },
+		{ dir: [0.2, -1, 1], label: "South Africa", offset: 5.5 },
+		{ dir: [-2.0, 0.5, -0.5], label: "USA", offset: 3 },
+		{ dir: [0.5, 0.2, 1], label: "Palestine", offset: 4 },
+	]);
+
+	// Direction where you want the cylinder (example: diagonally upward)
+	const direction = new THREE.Vector3(-0.25, 0.15, 0.6).normalize()
+
+	// Position = direction * (sphere radius + half cylinder length + small offset)
+	let position = direction.clone().multiplyScalar(
+		sphereRadius + cylinderLength / 2 + offset
+	)
+
+	const quaternion = new THREE.Quaternion()
+	quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
+
+
 
 	useEffect(() => {
 		if (!scene) return
@@ -304,9 +332,44 @@ export default function MovingSphere({...props}) {
 			const original = originalMaterials.current.get(child.uuid)
 			if (!original) return
 
-			child.material = original
-			child.material.needsUpdate = true
+			child.material = original;
+			child.castShadow = true;
+			child.receiveShadow = true;
+
+			child.material.needsUpdate = true;
 		})
+	}
+
+	const addRings = () => {
+		if (ringsAndLinesRef.current) {
+			ringsAndLinesRef.current.visible = true;
+			const globalRing = ringsAndLinesRef.current.getObjectByName("GlobalRing");
+			position = direction.clone().multiplyScalar(sphereRadius + cylinderLength / 2 + offset/100);
+
+			const tl = gsap.timeline();
+			tl.to(globalRing?.position, {
+				x: position.x,
+				y: position.y,
+				z: position.z,
+				duration: 2,
+				ease: "power3.out",
+			}, 0);
+
+			rings.current?.forEach((ring, i) => {
+				const ringMesh = ringsAndLinesRef.current.getObjectByName(ring.label);
+				console.log('RING MESH : ', ringMesh);
+				console.log('RING group : ', ringsAndLinesRef.current);
+				const newPos = new THREE.Vector3(...ring.dir).normalize().multiplyScalar(sphereRadius + cylinderLength / 2 + (ring.offset / 100));
+
+				tl.to(ringMesh?.position, {
+					x: newPos.x,
+					y: newPos.y,
+					z: newPos.z,
+					duration: 2,
+					ease: "power3.out",
+				}, 0);
+			});
+		}
 	}
 
 
@@ -320,7 +383,7 @@ export default function MovingSphere({...props}) {
 				const tl = gsap.timeline({
 					onComplete: () => {
 						console.log("Ready for swipe");
-						
+						addRings();
 						// explode();
 					}
 				});
@@ -402,18 +465,18 @@ export default function MovingSphere({...props}) {
 			blending: THREE.AdditiveBlending,
 			toneMapped: false,
 			uniforms: {
-			uFlash: { value: 0 },
+				uFlash: { value: 0 },
 			},
 			vertexShader: `
-			void main() {
-				gl_Position = vec4(position.xy, 0.0, 1.0);
-			}
+				void main() {
+					gl_Position = vec4(position.xy, 0.0, 1.0);
+				}
 			`,
 			fragmentShader: `
-			uniform float uFlash;
-			void main() {
-				gl_FragColor = vec4(vec3(1.0), uFlash);
-			}
+				uniform float uFlash;
+				void main() {
+					gl_FragColor = vec4(vec3(1.0), uFlash);
+				}
 			`,
 		})
 	}, [])
@@ -431,15 +494,6 @@ export default function MovingSphere({...props}) {
 			// onPointerCancel={onPointerCancel}
 			// onPointerLeave={onPointerLeave}
 		>
-			{/* <mesh>
-				<sphereGeometry args={[0.1, 32, 32]} />
-				<meshPhysicalMaterial
-					color='white'
-					emissive={new THREE.Color('#00e5ff')}
-					emissiveIntensity={10.0}
-					toneMapped={false}
-				/>
-			</mesh> */}
 			<mesh scale={1}>
 				<sphereGeometry args={[0.1, 64, 64]} />
 				<primitive object={supernovaMaterial} />
@@ -449,17 +503,63 @@ export default function MovingSphere({...props}) {
 				<planeGeometry args={[2, 2]} />
 				<primitive object={flashMaterial} />
 			</mesh>
-
-			{/* <pointLight
-				ref={supernovaLight}
-				position={[0, 0, 0]}
-				intensity={0}
-				distance={0}
-				decay={2}
-				color={"#ffffff"}
-			/> */}
-
 			<primitive ref={gltfRef} object={scene} scale={[1.2, 1.2, 1.2]} rotation={[0.2, -1, 0]} castShadow receiveShadow />
+
+
+			<group visible={false} ref={ringsAndLinesRef}>
+				{/* global ring */}
+				<group name="GlobalRing" position={position} quaternion={quaternion} >
+					<mesh castShadow >
+						<cylinderGeometry args={[0.06, 0.06, cylinderLength, 32]} />
+						<meshPhysicalMaterial
+							color="#ff5500"
+							metalness={0.4}
+							roughness={0.6}
+							clearcoat={1}
+							clearcoatRoughness={0.1}
+						/>
+					</mesh>
+
+					<mesh >
+						<cylinderGeometry args={[0.03, 0.03, cylinderLength + 0.001, 32]} />
+						<meshPhysicalMaterial 
+							color="#bfced9"
+							metalness={0.4}
+							roughness={0.6}
+							clearcoat={1}
+							clearcoatRoughness={0.1}
+						/>
+					</mesh>
+				</group>
+
+				{/* local rings */}
+				{rings.current?.map((ring, i) => (
+					<RingCylinder
+						key={i}
+						direction={ring.dir}
+						color1="#d0ad80"
+						color2="#bfced9"
+						offset={ring.offset}
+						label={ring.label}
+					/>
+				))}
+
+				{rings.current?.map((ring, i) => {
+					const end = new THREE.Vector3(...ring.dir).normalize().multiplyScalar(sphereRadius + 0.015 / 2 + ring.offset / 100);
+					return (
+						<AnimatedCurveLine
+							key={i}
+							start={position}
+							end={end}
+							color="#d0ad80"
+							curvature={0.3} // stronger arc
+							thickness={0.01} // thicker line
+							speed={0.5} // slower reveal
+							offset={ring.offset}
+						/>
+					);
+				})}
+			</group>
 			<Title />
 		</group>
 	)

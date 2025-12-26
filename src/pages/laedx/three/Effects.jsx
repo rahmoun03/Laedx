@@ -1,4 +1,6 @@
 import { EffectComposer, DepthOfField, Bloom } from "@react-three/postprocessing"
+import { BlendFunction } from "postprocessing";
+
 
 export default function Effects(){
 	
@@ -13,11 +15,12 @@ export default function Effects(){
 				/>
 
 				{/* <DepthOfField
-					focusDistance={1}      // Adjust based on your scene
-					focalLength={0.005}    // Higher = more blur
-					bokehScale={1}         // Blur quality
-					width={480}
-					height={480}
+					focusDistance={3.0}
+					focalLength={0.06}
+					bokehScale={5}
+					height={600}
+					blendFunction={BlendFunction.Screen}
+					blur={true}
 				/> */}
 			</EffectComposer>
 		</>

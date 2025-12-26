@@ -54,7 +54,7 @@ function App() {
                 <Suspense fallback={null}>
                     <Preload all={true} />
                     <LoaderBridge />
-			        {/* <SoftShadows size={25} samples={10} focus={0} /> */}
+			        {/* <SoftShadows size={50} samples={50} focus={10} /> */}
                     <Scene />
                     <Stats />
                     {/* <OrbitControls /> */}
