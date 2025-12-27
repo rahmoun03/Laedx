@@ -6,13 +6,10 @@ export default function AnimatedCurveLine({
 	start = new THREE.Vector3(0, 0, 0),
 	end = new THREE.Vector3(1, 1, 1),
 	color = "#d0ad80",
-	sphereRadius = 0.67,
-	cylinderLength = 0.015,
 	thickness = 0.02,
 	curvature = 0.8,
 	speed = 0.6,
 	pause = 0.5,
-	offset = 0.03,
 	visible = true,
 }) {
 	const [progress, setProgress] = useState(0);

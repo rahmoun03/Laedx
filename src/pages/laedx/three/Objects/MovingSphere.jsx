@@ -30,6 +30,7 @@ export default function MovingSphere({...props}) {
 	
 	
 	const ringsAndLinesRef = useRef();
+	const activeLinesRef = useRef(false);
 	// const supernovaLight = useRef()
 
 
@@ -85,15 +86,20 @@ export default function MovingSphere({...props}) {
 	]);
 
 	// Direction where you want the cylinder (example: diagonally upward)
-	const direction = new THREE.Vector3(-0.25, 0.15, 0.6).normalize()
+	const direction = useMemo(() => new THREE.Vector3(-0.25, 0.15, 0.6).normalize(), [])
 
 	// Position = direction * (sphere radius + half cylinder length + small offset)
-	let position = direction.clone().multiplyScalar(
-		sphereRadius + cylinderLength / 2 + offset
-	)
+	const initialPosition = useMemo(() => 
+			direction.clone().multiplyScalar(sphereRadius + cylinderLength / 2 + offset)
+		, [direction, sphereRadius, cylinderLength, offset])
 
-	const quaternion = new THREE.Quaternion()
-	quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
+	const position = useRef(initialPosition.clone())
+
+	const quaternion = useMemo(() => {
+		const q = new THREE.Quaternion()
+		q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
+		return q
+	}, [direction])
 
 
 
@@ -138,7 +144,7 @@ export default function MovingSphere({...props}) {
 				random: THREE.MathUtils.randFloat(0.6, 1.2),
 			})
 		})
-	}, [scene])
+	}, [scene, metalMaterial])
 
 
 	useEffect(() => {
@@ -247,6 +253,66 @@ export default function MovingSphere({...props}) {
 
 
 
+	const supernovaMaterial = useMemo(() => {
+		return new THREE.ShaderMaterial({
+			transparent: true,
+			blending: THREE.AdditiveBlending,
+			depthWrite: false,
+			toneMapped: false,
+			uniforms: {
+			uProgress: { value: 0 },
+			uIntensity: { value: 6 },
+			uColor: { value: new THREE.Color("#ffffff") },
+			},
+			vertexShader: `
+			varying vec3 vNormal;
+			void main() {
+				vNormal = normalize(normalMatrix * normal);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+			`,
+			fragmentShader: `
+			varying vec3 vNormal;
+			uniform float uProgress;
+			uniform float uIntensity;
+			uniform vec3 uColor;
+
+			void main() {
+				float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+				float flash = smoothstep(0.0, 0.15, uProgress)
+							* (1.0 - smoothstep(0.15, 0.4, uProgress));
+
+				float energy = (fresnel + flash * 3.0) * uIntensity;
+				gl_FragColor = vec4(uColor * energy, energy);
+			}
+			`
+		})
+	}, [])
+
+	const flashMaterial = useMemo(() => {
+		return new THREE.ShaderMaterial({
+			transparent: true,
+			depthWrite: false,
+			depthTest: false,
+			blending: THREE.AdditiveBlending,
+			toneMapped: false,
+			uniforms: {
+				uFlash: { value: 0 },
+			},
+			vertexShader: `
+				void main() {
+					gl_Position = vec4(position.xy, 0.0, 1.0);
+				}
+			`,
+			fragmentShader: `
+				uniform float uFlash;
+				void main() {
+					gl_FragColor = vec4(vec3(1.0), uFlash);
+				}
+			`,
+		})
+	}, [])
+
 	// explossion implementation
 	const getExplosionFactor = () => {
 		const t = THREE.MathUtils.clamp(progressLeftRef.current / 100, 0, 1)
@@ -344,16 +410,25 @@ export default function MovingSphere({...props}) {
 		if (ringsAndLinesRef.current) {
 			ringsAndLinesRef.current.visible = true;
 			const globalRing = ringsAndLinesRef.current.getObjectByName("GlobalRing");
-			position = direction.clone().multiplyScalar(sphereRadius + cylinderLength / 2 + offset/100);
+			position.current = direction.clone().multiplyScalar(sphereRadius + cylinderLength / 2 + offset/100);
 
 			const tl = gsap.timeline();
 			tl.to(globalRing?.position, {
-				x: position.x,
-				y: position.y,
-				z: position.z,
+				x: position.current.x,
+				y: position.current.y,
+				z: position.current.z,
 				duration: 2,
 				ease: "power3.out",
+				onComplete : () => {
+					ringsAndLinesRef.current?.children.forEach((child) => {
+						// console.log('RING AND LINES CHILD : ', child);
+						child.visible = true;
+					});
+				}
 			}, 0);
+			
+
+
 
 			rings.current?.forEach((ring, i) => {
 				const ringMesh = ringsAndLinesRef.current.getObjectByName(ring.label);
@@ -417,69 +492,7 @@ export default function MovingSphere({...props}) {
 			null,
 			"textEnd"
 		);
-	}, []);
-
-
-
-	const supernovaMaterial = useMemo(() => {
-		return new THREE.ShaderMaterial({
-			transparent: true,
-			blending: THREE.AdditiveBlending,
-			depthWrite: false,
-			toneMapped: false,
-			uniforms: {
-			uProgress: { value: 0 },
-			uIntensity: { value: 6 },
-			uColor: { value: new THREE.Color("#ffffff") },
-			},
-			vertexShader: `
-			varying vec3 vNormal;
-			void main() {
-				vNormal = normalize(normalMatrix * normal);
-				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-			}
-			`,
-			fragmentShader: `
-			varying vec3 vNormal;
-			uniform float uProgress;
-			uniform float uIntensity;
-			uniform vec3 uColor;
-
-			void main() {
-				float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
-				float flash = smoothstep(0.0, 0.15, uProgress)
-							* (1.0 - smoothstep(0.15, 0.4, uProgress));
-
-				float energy = (fresnel + flash * 3.0) * uIntensity;
-				gl_FragColor = vec4(uColor * energy, energy);
-			}
-			`
-		})
-	}, [])
-
-	const flashMaterial = useMemo(() => {
-		return new THREE.ShaderMaterial({
-			transparent: true,
-			depthWrite: false,
-			depthTest: false,
-			blending: THREE.AdditiveBlending,
-			toneMapped: false,
-			uniforms: {
-				uFlash: { value: 0 },
-			},
-			vertexShader: `
-				void main() {
-					gl_Position = vec4(position.xy, 0.0, 1.0);
-				}
-			`,
-			fragmentShader: `
-				uniform float uFlash;
-				void main() {
-					gl_FragColor = vec4(vec3(1.0), uFlash);
-				}
-			`,
-		})
-	}, [])
+	}, [scene]);
 
 
 
@@ -496,19 +509,36 @@ export default function MovingSphere({...props}) {
 		>
 			<mesh scale={1}>
 				<sphereGeometry args={[0.1, 64, 64]} />
-				<primitive object={supernovaMaterial} />
+				<shaderMaterial
+					transparent
+					blending={THREE.AdditiveBlending}
+					depthWrite={false}
+					toneMapped={false}
+					uniforms={supernovaMaterial.uniforms}
+					vertexShader={supernovaMaterial.vertexShader}
+					fragmentShader={supernovaMaterial.fragmentShader}
+				/>
 			</mesh>
 
 			<mesh renderOrder={9999}>
 				<planeGeometry args={[2, 2]} />
-				<primitive object={flashMaterial} />
+				<shaderMaterial
+					transparent
+					depthWrite={false}
+					depthTest={false}
+					blending={THREE.AdditiveBlending}
+					toneMapped={false}
+					uniforms={flashMaterial.uniforms}
+					vertexShader={flashMaterial.vertexShader}
+					fragmentShader={flashMaterial.fragmentShader}
+				/>
 			</mesh>
 			<primitive ref={gltfRef} object={scene} scale={[1.2, 1.2, 1.2]} rotation={[0.2, -1, 0]} castShadow receiveShadow />
 
 
 			<group visible={false} ref={ringsAndLinesRef}>
 				{/* global ring */}
-				<group name="GlobalRing" position={position} quaternion={quaternion} >
+				<group name="GlobalRing" position={position.current} quaternion={quaternion} >
 					<mesh castShadow >
 						<cylinderGeometry args={[0.06, 0.06, cylinderLength, 32]} />
 						<meshPhysicalMaterial
@@ -543,21 +573,21 @@ export default function MovingSphere({...props}) {
 						label={ring.label}
 					/>
 				))}
-
+				// render the animated curve lines whene the ring animation is done
 				{rings.current?.map((ring, i) => {
-					const end = new THREE.Vector3(...ring.dir).normalize().multiplyScalar(sphereRadius + 0.015 / 2 + ring.offset / 100);
-					return (
-						<AnimatedCurveLine
-							key={i}
-							start={position}
-							end={end}
-							color="#d0ad80"
-							curvature={0.3} // stronger arc
-							thickness={0.01} // thicker line
-							speed={0.5} // slower reveal
-							offset={ring.offset}
-						/>
-					);
+						const end = new THREE.Vector3(...ring.dir).normalize().multiplyScalar(sphereRadius + 0.015 / 2 + ring.offset / 100);
+						return (
+							<AnimatedCurveLine
+								key={i}
+								start={direction.clone().multiplyScalar(sphereRadius + cylinderLength / 2 + offset / 100)}
+								end={end}
+								color="#d0ad80"
+								curvature={0.3} // stronger arc
+								thickness={0.01} // thicker line
+								speed={0.5} // slower reveal
+								visible={false}
+							/>
+						);
 				})}
 			</group>
 			<Title />
